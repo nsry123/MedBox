@@ -44,20 +44,20 @@ class _MyHomePageState extends State<MyHomePage> {
   final database = DBManager();
 
   // final List pages = [];
+  // @override
+  // Widget build(BuildContext context){
+  //   return Scaffold(
+  //     resizeToAvoidBottomInset: false,
+  //     appBar: AppBar(
+  //       backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+  //       title: Text("OCR"),
+  //     ),
+  //     body: OcrPage(),
+  //   );
+  // }
+
   @override
-  Widget build(BuildContext context){
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text("OCR"),
-      ),
-      body: OcrPage(),
-    );
-  }
-
-
-  Widget build2(BuildContext context) {
+  Widget build(BuildContext context) {
     List<Widget> getPages(){
       return [TodoPage(database: database,), CalendarPage(), MedboxPage(database: database)];
     }
