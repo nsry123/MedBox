@@ -43,7 +43,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final List titles = ["今日待服","我的药历","全部药品"];
   final database = DBManager();
 
-  // final List pages = [];
+  final List pages = [];
   // @override
   // Widget build(BuildContext context){
   //   return Scaffold(

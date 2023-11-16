@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:test1/db/db_manager.dart';
 import 'package:test1/medicine_entry_pages/medicine_entry_page1.dart';
 import 'package:group_radio_button/group_radio_button.dart';
+import 'package:test1/ocr_page.dart';
 
 import 'medbox_page.dart';
 
@@ -457,6 +458,14 @@ class _MedicineEntryState extends State<MedicineEntry> {
       appBar: AppBar(
         title: Text(widget.title),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        actions: [
+          IconButton(
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => OcrPage()));
+              },
+              icon: Icon(Icons.add),
+          )
+        ],
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
