@@ -2,10 +2,8 @@ import 'dart:async';
 
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/material.dart';
-import 'package:test1/main.dart';
 
 import 'db/db_manager.dart';
-import 'medicine_entry.dart';
 
 class MedboxPage extends StatefulWidget {
   final DBManager database;
@@ -48,8 +46,6 @@ class _MedboxPageState extends State<MedboxPage> {
         }
     );
   }
-
-
 
   @override
   void initState(){

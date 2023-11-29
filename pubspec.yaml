@@ -44,6 +44,7 @@ dependencies:
   event_bus: ^2.0.0
   image_picker: 1.0.0
   google_mlkit_text_recognition: 0.11.0
+  dart_openai: ^4.0.0
 #  firebase_crashlytics: ^2.0.0
 
 

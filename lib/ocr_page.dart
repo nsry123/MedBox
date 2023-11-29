@@ -1,14 +1,24 @@
+import 'dart:async';
 import 'dart:io';
 
+import 'package:dart_openai/dart_openai.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:image_picker/image_picker.dart';
+
+import 'medbox_page.dart';
 
 class OcrPage extends StatefulWidget {
   const OcrPage({super.key});
 
   @override
   State<OcrPage> createState() => _OcrState();
+}
+
+class OCREvent{
+  OCREvent(this.msg);
+  final String msg;
 }
 
 abstract class ITextRecognizer {
@@ -70,12 +80,16 @@ class _OcrState extends State<OcrPage> {
 
   List<String> _imagePaths = [];
   String _result = "";
+  late StreamSubscription subscription;
 
   @override
   void initState() {
     super.initState();
     _imagePicker = ImagePicker();
     _recognizer = MyTextRecognizer();
+    OpenAI.apiKey = "sk-OY6LgQtwdh4zK7yyB7689e39259849B8A1D23a5dF507555c";
+    OpenAI.baseUrl = "https://api.132999.xyz";
+
   }
 
   Widget deleteImageAlert(int index) {
@@ -109,6 +123,7 @@ class _OcrState extends State<OcrPage> {
         setState(() {
           files.forEach((element) {
             _imagePaths.add(element.path);
+
           });
         });
       } else {
@@ -154,9 +169,21 @@ class _OcrState extends State<OcrPage> {
           } else {
             // print(index);
             return GestureDetector(
-              child: Text("123123"),
+              child: Text("加号"),
               onTap: () {
-                  //tap to add images
+                showDialog(
+                    context: context,
+                    builder: (context) => imagePickAlert(onCameraPressed: () async {
+                        await obtainImage(ImageSource.camera);
+                        Navigator.of(context).pop();
+
+                      }, onGalleryPressed: () async {
+                        await obtainImage(ImageSource.gallery);
+                        Navigator.of(context).pop();
+
+                      }
+                    )
+                );
               },
             );
           }
@@ -187,29 +214,16 @@ class _OcrState extends State<OcrPage> {
             showDialog(
                 context: context,
                 builder: (context) => imagePickAlert(onCameraPressed: () async {
-                      // _result = "";
                       await obtainImage(ImageSource.camera);
-                      // for (String element in _imagePaths) {
-                      //   _recognizer.processImage(element).then((value) {
-                      //     setState(() {
-                      //       _result += value;
-                      //     });
-                      //   });
-                      // }
                       Navigator.of(context).pop();
-                    }, onGalleryPressed: () async {
-                      // _result = "";
 
+                    }, onGalleryPressed: () async {
                       await obtainImage(ImageSource.gallery);
-                      // for (String element in _imagePaths) {
-                      //   _recognizer.processImage(element).then((value) {
-                      //     setState(() {
-                      //       _result += value;
-                      //     });
-                      //   });
-                      // }
                       Navigator.of(context).pop();
-                    }));
+
+                    }
+                )
+            );
           },
           child: const Icon(Icons.add),
         ),
@@ -217,25 +231,69 @@ class _OcrState extends State<OcrPage> {
             child: Center(
               child: Column(
                 children: [
-                  Container(
-                    child: Text("Result: " + _result),
-                  ),
+                  // Container(
+                  //   child: Text("Result: " + _result),
+                  // ),
                   buildImageGrid(),
                   TextButton(
                       onPressed: () async{
                         if(_imagePaths.length==0){
                           return;
                         }
+                        setState(() {
+                          _result = "";
+                        });
                         String _tempResult = "";
+                        print("scan completed");
 
                         for(int i=0;i<_imagePaths.length;i++){
                           final _singleResult = await _recognizer.processImage(_imagePaths.elementAt(i));
                           _tempResult += _singleResult;
                         }
-                        setState(() {
-                          _result = _tempResult;
-                        });
-                        print("scan completed");
+
+                        OpenAIChatCompletionModel chatCompletion = await OpenAI.instance.chat.create(
+                            model: "gpt-4",
+                            messages: [
+                              OpenAIChatCompletionChoiceMessageModel(
+                                  role: OpenAIChatMessageRole.user,
+                                  content: "Hello! The following disordered text: "+_tempResult+" is the OCR result of the package of a medicine. Please summarize based on the OCR result the basic information of a medicine in the format of {\"name\":\${name}, \"timesPerDay\":\${timesPerDay}, \"numberOfMedicineEntityPerTime\":\${numberOfMedicineEntityPerTime}, \"typeOfMedicineEntity\":\${typeOfMedicineEntity}, \"taboos\":\${taboos}}, do not include any other words in your response. "
+                                      "The field \"typeOfMedicine\" refers to how the medicine "
+                                      "If you think the OCR result is not from the container of a medicine, please directly rely \"ERROR\" in your response and DO NOT INCLUDE ANY OTHER WORDS IN YOUR RESPONSE. Please follow these rules strictly."
+                                      "If there are multiple taboos, write them in one string instead of a json list.")
+                            ]
+                        );
+                        String response = chatCompletion.choices.first.message.content;
+                        print("gpt4 result generated!");
+                        if(response == "ERROR"){
+                          setState(() {
+                            _result = "未识别到药品包装信息，请正确拍摄药品包装并重试。";
+                            showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  title: Text("扫描失败"),
+                                  content: Text("未识别到药品包装信息，请正确拍摄药品包装并重试。"),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: (){
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: Text("确定")
+                                    )
+                                  ],
+                                )
+                            );
+                          });
+                        }else{
+                          setState(() {
+                            _result = response;
+                            bus.fire(OCREvent("OCR_finished;"+response));
+                            if (Navigator.canPop(context)) {
+                              Navigator.pop(context);
+                            } else {
+                              SystemNavigator.pop();
+                            }
+                          });
+                        }
                       },
                       child: Text("Scan the uploaded images")
                   )

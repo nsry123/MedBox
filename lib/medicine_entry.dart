@@ -1,10 +1,10 @@
-import 'package:event_bus/event_bus.dart';
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
-import 'package:test1/db/db_manager.dart';
-import 'package:test1/medicine_entry_pages/medicine_entry_page1.dart';
 import 'package:group_radio_button/group_radio_button.dart';
+import 'package:test1/db/db_manager.dart';
 import 'package:test1/ocr_page.dart';
 
 import 'medbox_page.dart';
@@ -36,6 +36,7 @@ class _MedicineEntryState extends State<MedicineEntry> {
   final _medTabooController = TextEditingController();
   final _dosePerDayController = TextEditingController();
   final choices = ["每天服用X次", "每隔X天服用Y次", "按周规划", "按月规划"];
+  late StreamSubscription OCRsubscription;
   String _chosen = "每天服用X次";
   late Widget _buttons;
   List pages = [];
@@ -449,8 +450,21 @@ class _MedicineEntryState extends State<MedicineEntry> {
   void initState(){
     _getPages();
     _buttons = buildStepButtons();
+    OCRsubscription = bus.on<OCREvent>().listen((event) {
+      String OCR_result = event.msg.split(";").elementAt(1);
+      print(OCR_result);
+      var jsonData = jsonDecode(OCR_result);
+      setState(() {
+        _medNameController.text = jsonData['name'];
+        _medUnitController.text = jsonData['typeOfMedicineEntity'];
+        _medTabooController.text = jsonData['taboos'].toString();
+        _medDoseController.text = jsonData['numberOfMedicineEntityPerTime'].toString();
+        _dosePerDayController.text = jsonData['timesPerDay'].toString();
+        _buildNewTimeList(int.parse(jsonData['timesPerDay'].toString()));
+      });
+      _buildNewTimeList(int.parse(jsonData['timesPerDay'].toString()));
+    });
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
