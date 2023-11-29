@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:dart_openai/dart_openai.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -77,6 +78,7 @@ Widget imagePickAlert({
 class _OcrState extends State<OcrPage> {
   late ImagePicker _imagePicker;
   late MyTextRecognizer _recognizer;
+  int _isLoading = 0;
 
   List<String> _imagePaths = [];
   String _result = "";
@@ -242,6 +244,7 @@ class _OcrState extends State<OcrPage> {
                         }
                         setState(() {
                           _result = "";
+                          _isLoading = 1;
                         });
                         String _tempResult = "";
                         print("scan completed");
@@ -259,11 +262,17 @@ class _OcrState extends State<OcrPage> {
                                   content: "Hello! The following disordered text: "+_tempResult+" is the OCR result of the package of a medicine. Please summarize based on the OCR result the basic information of a medicine in the format of {\"name\":\${name}, \"timesPerDay\":\${timesPerDay}, \"numberOfMedicineEntityPerTime\":\${numberOfMedicineEntityPerTime}, \"typeOfMedicineEntity\":\${typeOfMedicineEntity}, \"taboos\":\${taboos}}, do not include any other words in your response. "
                                       "The field \"typeOfMedicine\" refers to how the medicine "
                                       "If you think the OCR result is not from the container of a medicine, please directly rely \"ERROR\" in your response and DO NOT INCLUDE ANY OTHER WORDS IN YOUR RESPONSE. Please follow these rules strictly."
-                                      "If there are multiple taboos, write them in one string instead of a json list.")
+                                      "If there are multiple taboos, write them in one string instead of a json list."
+                                      "Please translate the information in each field to chinese, but do not alter the structure of the response."
+                                      "Please only give number in the field \"timesPerDay\" and \"numberOfMedicineEntityPerTime\"."
+                                      "For the field \"typeOfMedicineEntity\", please only use minimal description, for example, \"tablet\", \"pill\", etc. Do not add modifier word any before this description.")
                             ]
                         );
                         String response = chatCompletion.choices.first.message.content;
                         print("gpt4 result generated!");
+                        setState(() {
+                          _isLoading = 0;
+                        });
                         if(response == "ERROR"){
                           setState(() {
                             _result = "未识别到药品包装信息，请正确拍摄药品包装并重试。";
@@ -275,7 +284,11 @@ class _OcrState extends State<OcrPage> {
                                   actions: [
                                     TextButton(
                                       onPressed: (){
-                                        Navigator.of(context).pop();
+                                        if (Navigator.canPop(context)) {
+                                          Navigator.pop(context);
+                                        } else {
+                                          SystemNavigator.pop();
+                                        }
                                       },
                                       child: Text("确定")
                                     )
@@ -284,9 +297,16 @@ class _OcrState extends State<OcrPage> {
                             );
                           });
                         }else{
-                          setState(() {
-                            _result = response;
+                          setState(()  {
+                            // _result = response;
+                            response = response.replaceAll("\n", "");
+                            print(response[response.length-1]);
+                            print(response[response.length-2]);
+                            if(response[response.length-1]!="}" && response[response.length-2]!="\""){
+                              response += "\"}";
+                            }
                             bus.fire(OCREvent("OCR_finished;"+response));
+
                             if (Navigator.canPop(context)) {
                               Navigator.pop(context);
                             } else {
@@ -295,8 +315,18 @@ class _OcrState extends State<OcrPage> {
                           });
                         }
                       },
-                      child: Text("Scan the uploaded images")
-                  )
+                      child: Text("开始扫描")
+                  ),
+
+                  _isLoading==1
+                  ? Container(
+                      child:SpinKitFoldingCube(
+                        color: Colors.blueAccent,
+                      ),
+                    padding: EdgeInsets.fromLTRB(0, 20, 0, 20),
+                    )
+                  : Text(""),
+                  _isLoading==1?Text("加载中..."):Text("")
                 ],
               ),
             )

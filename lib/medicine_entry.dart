@@ -124,7 +124,7 @@ class _MedicineEntryState extends State<MedicineEntry> {
           child:
           Container(
             margin: const EdgeInsets.fromLTRB(0, 0, 10, 0),
-            child: Text(time,style: const TextStyle(fontWeight: FontWeight.bold,fontSize: 20,fontStyle: FontStyle.italic)),
+            child: Text(time+"▼",style: const TextStyle(fontWeight: FontWeight.bold,fontSize: 20,fontStyle: FontStyle.italic)),
           )
         ),
       ],
