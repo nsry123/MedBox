@@ -106,6 +106,7 @@ class _OcrState extends State<OcrPage> {
                 });
                 Navigator.of(context).pop();
               },
+
               child: Text("确定")),
           TextButton(
               onPressed: () {
@@ -139,6 +140,7 @@ class _OcrState extends State<OcrPage> {
         });
       } else {
         print("选择图片过多！最大图片数量为9张！");
+
       }
     }
   }

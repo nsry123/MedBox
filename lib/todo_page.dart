@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:test1/main.dart';
 
 import 'db/db_manager.dart';
 
 
 class TodoPage extends StatefulWidget {
   final DBManager database;
-  const TodoPage({super.key, title, required this.database});
+  final NotificationHelper anotificationHelper;
+  const TodoPage({super.key, title, required this.database, required this.anotificationHelper});
   final String title = "今日待服";
   @override
   State<TodoPage> createState() => _TodoPageState();
@@ -58,8 +60,9 @@ class _TodoPageState extends State<TodoPage> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: InkWell(
-                            onTap: (){
-
+                            onTap: ()  async{
+                              await notificationHelper.zonedScheduleNotification();
+                              await notificationHelper.getAllNotifications();
                             },
                             borderRadius: BorderRadius.circular(8),
                             child: Container(

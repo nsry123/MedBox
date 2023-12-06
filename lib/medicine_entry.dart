@@ -219,6 +219,7 @@ class _MedicineEntryState extends State<MedicineEntry> {
                           return "服用次数不能为0!";
                         }
                         return null;
+
                       },
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       keyboardType: TextInputType.number,
