@@ -133,7 +133,8 @@ class _MedicineChangeState extends State<MedicineChange> {
         unit: _medUnitController.text,
         taboos: _medTabooController.text,
         timesList: times,
-        mode: choices.indexOf(_chosen)
+        mode: choices.indexOf(_chosen),
+        whetherTakenList: medicine.whetherTakenList,
     );
     await widget.database.update(widget.database.medicines).replace(newMedicine);
   }

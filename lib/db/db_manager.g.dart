@@ -57,9 +57,27 @@ class $MedicinesTable extends Medicines
   late final GeneratedColumn<int> mode = GeneratedColumn<int>(
       'mode', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _whetherTakenListMeta =
+      const VerificationMeta('whetherTakenList');
   @override
-  List<GeneratedColumn> get $columns =>
-      [id, name, timesPerDay, dosePerTime, unit, taboos, timesList, mode];
+  late final GeneratedColumnWithTypeConverter<List<dynamic>, String>
+      whetherTakenList = GeneratedColumn<String>(
+              'whether_taken_list', aliasedName, false,
+              type: DriftSqlType.string, requiredDuringInsert: true)
+          .withConverter<List<dynamic>>(
+              $MedicinesTable.$converterwhetherTakenList);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        name,
+        timesPerDay,
+        dosePerTime,
+        unit,
+        taboos,
+        timesList,
+        mode,
+        whetherTakenList
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -114,6 +132,7 @@ class $MedicinesTable extends Medicines
     } else if (isInserting) {
       context.missing(_modeMeta);
     }
+    context.handle(_whetherTakenListMeta, const VerificationResult.success());
     return context;
   }
 
@@ -140,6 +159,9 @@ class $MedicinesTable extends Medicines
           .read(DriftSqlType.string, data['${effectivePrefix}times_list'])!),
       mode: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}mode'])!,
+      whetherTakenList: $MedicinesTable.$converterwhetherTakenList.fromSql(
+          attachedDatabase.typeMapping.read(DriftSqlType.string,
+              data['${effectivePrefix}whether_taken_list'])!),
     );
   }
 
@@ -149,6 +171,8 @@ class $MedicinesTable extends Medicines
   }
 
   static TypeConverter<List<dynamic>, String> $convertertimesList =
+      TimeListConverter();
+  static TypeConverter<List<dynamic>, String> $converterwhetherTakenList =
       TimeListConverter();
 }
 
@@ -161,6 +185,7 @@ class Medicine extends DataClass implements Insertable<Medicine> {
   final String taboos;
   final List<dynamic> timesList;
   final int mode;
+  final List<dynamic> whetherTakenList;
   const Medicine(
       {required this.id,
       required this.name,
@@ -169,7 +194,8 @@ class Medicine extends DataClass implements Insertable<Medicine> {
       required this.unit,
       required this.taboos,
       required this.timesList,
-      required this.mode});
+      required this.mode,
+      required this.whetherTakenList});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -180,10 +206,14 @@ class Medicine extends DataClass implements Insertable<Medicine> {
     map['unit'] = Variable<String>(unit);
     map['taboos'] = Variable<String>(taboos);
     {
-      final converter = $MedicinesTable.$convertertimesList;
-      map['times_list'] = Variable<String>(converter.toSql(timesList));
+      map['times_list'] = Variable<String>(
+          $MedicinesTable.$convertertimesList.toSql(timesList));
     }
     map['mode'] = Variable<int>(mode);
+    {
+      map['whether_taken_list'] = Variable<String>(
+          $MedicinesTable.$converterwhetherTakenList.toSql(whetherTakenList));
+    }
     return map;
   }
 
@@ -197,6 +227,7 @@ class Medicine extends DataClass implements Insertable<Medicine> {
       taboos: Value(taboos),
       timesList: Value(timesList),
       mode: Value(mode),
+      whetherTakenList: Value(whetherTakenList),
     );
   }
 
@@ -212,6 +243,8 @@ class Medicine extends DataClass implements Insertable<Medicine> {
       taboos: serializer.fromJson<String>(json['taboos']),
       timesList: serializer.fromJson<List<dynamic>>(json['timesList']),
       mode: serializer.fromJson<int>(json['mode']),
+      whetherTakenList:
+          serializer.fromJson<List<dynamic>>(json['whetherTakenList']),
     );
   }
   @override
@@ -226,6 +259,7 @@ class Medicine extends DataClass implements Insertable<Medicine> {
       'taboos': serializer.toJson<String>(taboos),
       'timesList': serializer.toJson<List<dynamic>>(timesList),
       'mode': serializer.toJson<int>(mode),
+      'whetherTakenList': serializer.toJson<List<dynamic>>(whetherTakenList),
     };
   }
 
@@ -237,7 +271,8 @@ class Medicine extends DataClass implements Insertable<Medicine> {
           String? unit,
           String? taboos,
           List<dynamic>? timesList,
-          int? mode}) =>
+          int? mode,
+          List<dynamic>? whetherTakenList}) =>
       Medicine(
         id: id ?? this.id,
         name: name ?? this.name,
@@ -247,6 +282,7 @@ class Medicine extends DataClass implements Insertable<Medicine> {
         taboos: taboos ?? this.taboos,
         timesList: timesList ?? this.timesList,
         mode: mode ?? this.mode,
+        whetherTakenList: whetherTakenList ?? this.whetherTakenList,
       );
   @override
   String toString() {
@@ -258,14 +294,15 @@ class Medicine extends DataClass implements Insertable<Medicine> {
           ..write('unit: $unit, ')
           ..write('taboos: $taboos, ')
           ..write('timesList: $timesList, ')
-          ..write('mode: $mode')
+          ..write('mode: $mode, ')
+          ..write('whetherTakenList: $whetherTakenList')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(
-      id, name, timesPerDay, dosePerTime, unit, taboos, timesList, mode);
+  int get hashCode => Object.hash(id, name, timesPerDay, dosePerTime, unit,
+      taboos, timesList, mode, whetherTakenList);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -277,7 +314,8 @@ class Medicine extends DataClass implements Insertable<Medicine> {
           other.unit == this.unit &&
           other.taboos == this.taboos &&
           other.timesList == this.timesList &&
-          other.mode == this.mode);
+          other.mode == this.mode &&
+          other.whetherTakenList == this.whetherTakenList);
 }
 
 class MedicinesCompanion extends UpdateCompanion<Medicine> {
@@ -289,6 +327,7 @@ class MedicinesCompanion extends UpdateCompanion<Medicine> {
   final Value<String> taboos;
   final Value<List<dynamic>> timesList;
   final Value<int> mode;
+  final Value<List<dynamic>> whetherTakenList;
   const MedicinesCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
@@ -298,6 +337,7 @@ class MedicinesCompanion extends UpdateCompanion<Medicine> {
     this.taboos = const Value.absent(),
     this.timesList = const Value.absent(),
     this.mode = const Value.absent(),
+    this.whetherTakenList = const Value.absent(),
   });
   MedicinesCompanion.insert({
     this.id = const Value.absent(),
@@ -308,13 +348,15 @@ class MedicinesCompanion extends UpdateCompanion<Medicine> {
     required String taboos,
     required List<dynamic> timesList,
     required int mode,
+    required List<dynamic> whetherTakenList,
   })  : name = Value(name),
         timesPerDay = Value(timesPerDay),
         dosePerTime = Value(dosePerTime),
         unit = Value(unit),
         taboos = Value(taboos),
         timesList = Value(timesList),
-        mode = Value(mode);
+        mode = Value(mode),
+        whetherTakenList = Value(whetherTakenList);
   static Insertable<Medicine> custom({
     Expression<int>? id,
     Expression<String>? name,
@@ -324,6 +366,7 @@ class MedicinesCompanion extends UpdateCompanion<Medicine> {
     Expression<String>? taboos,
     Expression<String>? timesList,
     Expression<int>? mode,
+    Expression<String>? whetherTakenList,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -334,6 +377,7 @@ class MedicinesCompanion extends UpdateCompanion<Medicine> {
       if (taboos != null) 'taboos': taboos,
       if (timesList != null) 'times_list': timesList,
       if (mode != null) 'mode': mode,
+      if (whetherTakenList != null) 'whether_taken_list': whetherTakenList,
     });
   }
 
@@ -345,7 +389,8 @@ class MedicinesCompanion extends UpdateCompanion<Medicine> {
       Value<String>? unit,
       Value<String>? taboos,
       Value<List<dynamic>>? timesList,
-      Value<int>? mode}) {
+      Value<int>? mode,
+      Value<List<dynamic>>? whetherTakenList}) {
     return MedicinesCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
@@ -355,6 +400,7 @@ class MedicinesCompanion extends UpdateCompanion<Medicine> {
       taboos: taboos ?? this.taboos,
       timesList: timesList ?? this.timesList,
       mode: mode ?? this.mode,
+      whetherTakenList: whetherTakenList ?? this.whetherTakenList,
     );
   }
 
@@ -380,12 +426,16 @@ class MedicinesCompanion extends UpdateCompanion<Medicine> {
       map['taboos'] = Variable<String>(taboos.value);
     }
     if (timesList.present) {
-      final converter = $MedicinesTable.$convertertimesList;
-
-      map['times_list'] = Variable<String>(converter.toSql(timesList.value));
+      map['times_list'] = Variable<String>(
+          $MedicinesTable.$convertertimesList.toSql(timesList.value));
     }
     if (mode.present) {
       map['mode'] = Variable<int>(mode.value);
+    }
+    if (whetherTakenList.present) {
+      map['whether_taken_list'] = Variable<String>($MedicinesTable
+          .$converterwhetherTakenList
+          .toSql(whetherTakenList.value));
     }
     return map;
   }
@@ -400,7 +450,8 @@ class MedicinesCompanion extends UpdateCompanion<Medicine> {
           ..write('unit: $unit, ')
           ..write('taboos: $taboos, ')
           ..write('timesList: $timesList, ')
-          ..write('mode: $mode')
+          ..write('mode: $mode, ')
+          ..write('whetherTakenList: $whetherTakenList')
           ..write(')'))
         .toString();
   }

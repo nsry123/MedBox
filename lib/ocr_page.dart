@@ -261,16 +261,17 @@ class _OcrState extends State<OcrPage> {
                             messages: [
                               OpenAIChatCompletionChoiceMessageModel(
                                   role: OpenAIChatMessageRole.user,
-                                  content: "Hello! The following disordered text: "+_tempResult+" is the OCR result of the package of a medicine. Please summarize based on the OCR result the basic information of a medicine in the format of {\"name\":\${name}, \"timesPerDay\":\${timesPerDay}, \"numberOfMedicineEntityPerTime\":\${numberOfMedicineEntityPerTime}, \"typeOfMedicineEntity\":\${typeOfMedicineEntity}, \"taboos\":\${taboos}}, do not include any other words in your response. "
+                                  content: [
+                                    OpenAIChatCompletionChoiceMessageContentItemModel.text("Hello! The following disordered text: "+_tempResult+" is the OCR result of the package of a medicine. Please summarize based on the OCR result the basic information of a medicine in the format of {\"name\":\${name}, \"timesPerDay\":\${timesPerDay}, \"numberOfMedicineEntityPerTime\":\${numberOfMedicineEntityPerTime}, \"typeOfMedicineEntity\":\${typeOfMedicineEntity}, \"taboos\":\${taboos}}, do not include any other words in your response. "
                                       "The field \"typeOfMedicine\" refers to how the medicine "
                                       "If you think the OCR result is not from the container of a medicine, please directly rely \"ERROR\" in your response and DO NOT INCLUDE ANY OTHER WORDS IN YOUR RESPONSE. Please follow these rules strictly."
                                       "If there are multiple taboos, write them in one string instead of a json list."
                                       "Please translate the information in each field to chinese, but do not alter the structure of the response."
                                       "Please only give number in the field \"timesPerDay\" and \"numberOfMedicineEntityPerTime\"."
-                                      "For the field \"typeOfMedicineEntity\", please only use minimal description, for example, \"tablet\", \"pill\", etc. Do not add modifier word any before this description.")
-                            ]
+                                      "For the field \"typeOfMedicineEntity\", please only use minimal description, for example, \"tablet\", \"pill\", etc. Do not add modifier word any before this description.")]
+                              )]
                         );
-                        String response = chatCompletion.choices.first.message.content;
+                        String? response = chatCompletion.choices.first.message.content?[0].text;
                         print("gpt4 result generated!");
                         setState(() {
                           _isLoading = 0;
@@ -301,13 +302,13 @@ class _OcrState extends State<OcrPage> {
                         }else{
                           setState(()  {
                             // _result = response;
-                            response = response.replaceAll("\n", "");
-                            print(response[response.length-1]);
-                            print(response[response.length-2]);
-                            if(response[response.length-1]!="}" && response[response.length-2]!="\""){
-                              response += "\"}";
+                            response = response?.replaceAll("\n", "");
+                            print(response?[response!.length-1]);
+                            print(response?[response!.length-2]);
+                            if(response?[response!.length-1]!="}" && response?[response!.length-2]!="\""){
+                              response = (response!+ "\"}")!;
                             }
-                            bus.fire(OCREvent("OCR_finished;"+response));
+                            bus.fire(OCREvent("OCR_finished;"+response!));
 
                             if (Navigator.canPop(context)) {
                               Navigator.pop(context);

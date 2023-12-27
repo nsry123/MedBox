@@ -31,13 +31,14 @@ class Medicines extends Table{
   TextColumn get taboos => text()();
   TextColumn get timesList => text().map(TimeListConverter())();
   IntColumn get mode => integer()();
+  TextColumn get whetherTakenList => text().map(TimeListConverter())();
 }
 
 @DriftDatabase(tables: [Medicines])
 class DBManager extends _$DBManager {
   DBManager() : super(_openConnection());
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
 
   @override
@@ -57,12 +58,25 @@ class DBManager extends _$DBManager {
           // version 3
           await m.addColumn(medicines,medicines.mode);
         }
+        if (from < 4) {
+          // we added the dueDate property in the change from version 3 to
+          // version 4
+          await m.addColumn(medicines,medicines.whetherTakenList);
+        }
       },
     );
   }
 
   Future deleteMedicineById(int id){
     return (delete(medicines)..where((tbl) => tbl.id.equals(id))).go();
+  }
+
+  Future deleteAllMedicine(int id){
+    return (delete(medicines)..where((tbl) => tbl.id.isBiggerThanValue(-2))).go();
+  }
+
+  Future<Medicine> searchById(int id){
+    return (select(medicines)..where((tbl) => tbl.id.equals(id))).getSingle();
   }
 }
 

@@ -9,6 +9,7 @@ import 'package:test1/ocr_page.dart';
 
 import 'medbox_page.dart';
 
+
 class MedicineEntry extends StatefulWidget {
   final DBManager database;
   const MedicineEntry({super.key, title, required this.database});
@@ -41,6 +42,7 @@ class _MedicineEntryState extends State<MedicineEntry> {
   late Widget _buttons;
   List pages = [];
   List times = [];
+  List whetherTaken = [];
 
   double _progress = 0;
   int _pos = 0;
@@ -54,7 +56,8 @@ class _MedicineEntryState extends State<MedicineEntry> {
         timesList: times,
         // dosePerTime: 123
         dosePerTime:  int.parse(_medDoseController.text),
-        mode: choices.indexOf(_chosen)
+        mode: choices.indexOf(_chosen),
+        whetherTakenList: whetherTaken
     ));
   }
 
@@ -168,8 +171,10 @@ class _MedicineEntryState extends State<MedicineEntry> {
 
   List <Widget> _getWidgetList(){
     List <Widget> timeWidgets = [];
+    whetherTaken = [];
     for(int i=0;i<times.length;i++){
       timeWidgets.add(_getTimeWidget(i+1, times[i]));
+      whetherTaken.add("-1");
     }
     return timeWidgets;
   }

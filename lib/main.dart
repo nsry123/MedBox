@@ -1,9 +1,13 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_native_timezone/flutter_native_timezone.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:test1/calendar_page.dart';
 import 'package:test1/medicine_change.dart';
 import 'package:test1/medicine_entry.dart';
@@ -13,13 +17,139 @@ import 'package:timezone/timezone.dart' as tz;
 
 import 'db/db_manager.dart';
 import 'medbox_page.dart';
+import 'notification_demo.dart';
+
+int id = 0;
+
+Future<void> _configureLocalTimeZone() async {
+  if (kIsWeb || Platform.isLinux) {
+    return;
+  }
+  tz.initializeTimeZones();
+  final String? timeZoneName = await FlutterTimezone.getLocalTimezone();
+  tz.setLocalLocation(tz.getLocation(timeZoneName!));
+}
+
+Future<void> main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  await _configureLocalTimeZone();
+
+  final NotificationAppLaunchDetails? notificationAppLaunchDetails = !kIsWeb && Platform.isLinux
+      ? null
+      : await flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();
+  String initialRoute = HomePage.routeName;
+  if (notificationAppLaunchDetails?.didNotificationLaunchApp ?? false) {
+    selectedNotificationPayload = notificationAppLaunchDetails!.notificationResponse?.payload;
+    initialRoute = IntakePage.routeName;
+  }
+
+  const AndroidInitializationSettings initializationSettingsAndroid =
+  AndroidInitializationSettings("@mipmap/ic_launcher");
 
 
-void main() {
+  final List<DarwinNotificationCategory> darwinNotificationCategories =
+  <DarwinNotificationCategory>[
+    DarwinNotificationCategory(
+      darwinNotificationCategoryText,
+      actions: <DarwinNotificationAction>[
+        DarwinNotificationAction.text(
+          'text_1',
+          'Action 1',
+          buttonTitle: 'Send',
+          placeholder: 'Placeholder',
+        ),
+      ],
+    ),
+    DarwinNotificationCategory(
+      darwinNotificationCategoryPlain,
+      actions: <DarwinNotificationAction>[
+        DarwinNotificationAction.plain('id_1', 'Action 1'),
+        DarwinNotificationAction.plain(
+          'id_2',
+          'Action 2 (destructive)',
+          options: <DarwinNotificationActionOption>{
+            DarwinNotificationActionOption.destructive,
+          },
+        ),
+        DarwinNotificationAction.plain(
+          navigationActionId,
+          'Action 3 (foreground)',
+          options: <DarwinNotificationActionOption>{
+            DarwinNotificationActionOption.foreground,
+          },
+        ),
+        DarwinNotificationAction.plain(
+          'id_4',
+          'Action 4 (auth required)',
+          options: <DarwinNotificationActionOption>{
+            DarwinNotificationActionOption.authenticationRequired,
+          },
+        ),
+      ],
+      options: <DarwinNotificationCategoryOption>{
+        DarwinNotificationCategoryOption.hiddenPreviewShowTitle,
+      },
+    )
+  ];
+
+  /// Note: permissions aren't requested here just to demonstrate that can be
+  /// done later
+  final DarwinInitializationSettings initializationSettingsDarwin = DarwinInitializationSettings(
+    requestAlertPermission: false,
+    requestBadgePermission: false,
+    requestSoundPermission: false,
+    onDidReceiveLocalNotification: (int id, String? title, String? body, String? payload) async {
+      didReceiveLocalNotificationStream.add(
+        ReceivedNotification(
+          id: id,
+          title: title,
+          body: body,
+          payload: payload,
+        ),
+      );
+    },
+    notificationCategories: darwinNotificationCategories,
+  );
+  final LinuxInitializationSettings initializationSettingsLinux = LinuxInitializationSettings(
+    defaultActionName: 'Open notification',
+    defaultIcon: AssetsLinuxIcon("@mipmap/ic_launcher"),
+  );
+  final InitializationSettings initializationSettings = InitializationSettings(
+    android: initializationSettingsAndroid,
+    iOS: initializationSettingsDarwin,
+    macOS: initializationSettingsDarwin,
+    linux: initializationSettingsLinux,
+  );
+  await flutterLocalNotificationsPlugin.initialize(
+    initializationSettings,
+    onDidReceiveNotificationResponse: (NotificationResponse notificationResponse) {
+      switch (notificationResponse.notificationResponseType) {
+        case NotificationResponseType.selectedNotification:
+          selectNotificationStream.add(notificationResponse.payload);
+          break;
+        case NotificationResponseType.selectedNotificationAction:
+          if (notificationResponse.actionId == navigationActionId) {
+            selectNotificationStream.add(notificationResponse.payload);
+          }
+          break;
+      }
+    },
+    onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
+  );
+
   runApp(const MyApp());
 }
 FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 NotificationHelper notificationHelper = new NotificationHelper();
+
+final StreamController<ReceivedNotification> didReceiveLocalNotificationStream =
+StreamController<ReceivedNotification>.broadcast();
+
+final StreamController<String?> selectNotificationStream = StreamController<String?>.broadcast();
+
+const MethodChannel platform = MethodChannel('dexterx.dev/flutter_local_notifications_example');
+
+const String portName = 'notification_send_port';
 
 class NotificationHelper {
 
@@ -60,20 +190,24 @@ class NotificationHelper {
     final String timeZone = await FlutterNativeTimezone.getLocalTimezone();
     tz.setLocalLocation(tz.getLocation(timeZone));
   }
-
-  Future<void> getAllNotifications() async{
+  Future<void> getActiveNotifications() async{
     flutterLocalNotificationsPlugin.getActiveNotifications().then((value) {
-      print(value);
-      print(value.length);
+      // print(value[0].title);
+
+      print("${value.length} active notifications");
     });
   }
-
-  Future<void> zonedScheduleNotification() async {
+  Future<void> getPendingNotifications() async{
+    flutterLocalNotificationsPlugin.pendingNotificationRequests().then((value) {
+      print("${value.length} pending notifications");
+    });
+  }
+  Future<void> zonedScheduleNotification(int seconds) async {
     await flutterLocalNotificationsPlugin.zonedSchedule(
         0,
         'scheduled title',
         'scheduled body',
-        tz.TZDateTime.now(tz.local).add(const Duration(seconds: 5)),
+        tz.TZDateTime.now(tz.local).add(Duration(seconds: seconds)),
         const NotificationDetails(
             android: AndroidNotificationDetails('your channel id', 'your channel name',
                 channelDescription: 'your channel description')),
@@ -129,7 +263,6 @@ Future<void> _requestPermissions() async {
 
   if (Platform.isIOS || Platform.isMacOS) {
 
-
     await flutterLocalNotificationsPlugin
         .resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>()
         ?.requestPermissions(
@@ -168,7 +301,6 @@ Future<void> _isAndroidPermissionGranted() async {
   }
 }
 
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -184,6 +316,7 @@ class MyApp extends StatelessWidget {
       ),
       home: const MyHomePage(title: 'Flutter Demo Home Page'),
       routes:{
+        "/main": (context) => MyHomePage(title: "title")
       }
     );
   }
@@ -219,10 +352,54 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState(){
     _requestPermissions();
     _isAndroidPermissionGranted();
-    notificationHelper.initializeNotification();
-    // notificationHelper.scheduledNotification(hour: 22, minutes: 4, id: 12, sound: "123");
-    notificationHelper.zonedScheduleNotification();
-    notificationHelper.getAllNotifications();
+    _configureDidReceiveLocalNotificationSubject();
+    _configureSelectNotificationSubject();
+    // database.delete(database.medicines);
+    // database.deleteAllMedicine(0);
+  }
+
+  @override
+  void dispose(){
+    didReceiveLocalNotificationStream.close();
+    selectNotificationStream.close();
+    super.dispose();
+  }
+
+  void _configureSelectNotificationSubject() {
+    // runApp(const MyApp());
+    selectNotificationStream.stream.listen((String? payload) async {
+      // await Navigator.of(context).push(MaterialPageRoute<void>(
+      //   builder: (BuildContext context) => IntakePage(payload),
+      // ));
+      await Navigator.of(context).pushNamed("/main");
+    });
+  }
+
+  void _configureDidReceiveLocalNotificationSubject() {
+    didReceiveLocalNotificationStream.stream
+        .listen((ReceivedNotification receivedNotification) async {
+      await showDialog(
+        context: context,
+        builder: (BuildContext context) => CupertinoAlertDialog(
+          title: receivedNotification.title != null ? Text(receivedNotification.title!) : null,
+          content: receivedNotification.body != null ? Text(receivedNotification.body!) : null,
+          actions: <Widget>[
+            CupertinoDialogAction(
+              isDefaultAction: true,
+              onPressed: () async {
+                Navigator.of(context, rootNavigator: true).pop();
+                await Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (BuildContext context) => IntakePage(receivedNotification.payload),
+                  ),
+                );
+              },
+              child: const Text('Ok'),
+            )
+          ],
+        ),
+      );
+    });
   }
 
   @override
@@ -277,4 +454,50 @@ class _MyHomePageState extends State<MyHomePage> {
       )
     );
   }
+}
+
+class IntakePage extends StatefulWidget {
+  const IntakePage(
+      this.payload, {
+        Key? key,
+      }) : super(key: key);
+
+  static const String routeName = '/intakePage';
+
+  final String? payload;
+
+  @override
+  State<StatefulWidget> createState() => IntakePageState();
+}
+
+class IntakePageState extends State<IntakePage> {
+  String? _payload;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _payload = widget.payload;
+  }
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    appBar: AppBar(
+      title: const Text('Second Screen'),
+    ),
+    body: Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Text('payload ${_payload ?? ''}'),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: const Text('Go back!'),
+          ),
+        ],
+      ),
+    ),
+  );
 }
