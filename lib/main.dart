@@ -136,7 +136,6 @@ Future<void> main() async{
     },
     onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
   );
-
   runApp(const MyApp());
 }
 FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
@@ -356,6 +355,7 @@ class _MyHomePageState extends State<MyHomePage> {
     _configureSelectNotificationSubject();
     // database.delete(database.medicines);
     // database.deleteAllMedicine(0);
+
   }
 
   @override
@@ -405,7 +405,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     List<Widget> getPages(){
-      return [TodoPage(database: database,anotificationHelper: notificationHelper,), CalendarPage(), MedboxPage(database: database)];
+      return [TodoPage(database: database,anotificationHelper: notificationHelper,), CalendarPage(database: database,), MedboxPage(database: database)];
     }
     return NotificationListener<CustomNotification>(
       onNotification: (notification){

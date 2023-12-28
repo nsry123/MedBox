@@ -301,6 +301,7 @@ class _MedicineChangeState extends State<MedicineChange> {
 
                             validator: (text){
                               if(text!.isEmpty){
+
                                 return "服用次数不能为空!";
                               }
                               if(int.parse(text)==0){

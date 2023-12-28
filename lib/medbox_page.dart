@@ -116,33 +116,52 @@ class _MedboxPageState extends State<MedboxPage> {
                             borderRadius: BorderRadius.circular(8),
                             onTap: (){
                               CustomNotification("to_change_medicine_$index").dispatch(context);
-
                             },
                             onLongPress: (){
                               showDialog(context: context, builder: (context) => deleteMedicineAlert(index));
                             },
                             child: Container(
                               margin: EdgeInsets.fromLTRB(10, 10, 0, 10),
-                              child: Column(
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Row(
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                           medicine.name,
                                           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30)
-                                      )
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
+                                      ),
+
                                       Text(
                                           "每日${medicine.timesPerDay}次, 每次${medicine.dosePerTime}${medicine.unit}",
                                           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)
                                       )
                                     ],
-                                  )
+                                  ),
+                                  Icon(Icons.keyboard_arrow_right,size: 30,)
                                 ],
-                              ),
+                              )
+                              // child: Column(
+                              //   children: [
+                              //     Row(
+                              //       children: [
+                              //         Text(
+                              //             medicine.name,
+                              //             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30)
+                              //         )
+                              //       ],
+                              //     ),
+                              //     Row(
+                              //       children: [
+                              //         Text(
+                              //             "每日${medicine.timesPerDay}次, 每次${medicine.dosePerTime}${medicine.unit}",
+                              //             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)
+                              //         )
+                              //       ],
+                              //     )
+                              //   ],
+                              // ),
                             )
                           )
                         );

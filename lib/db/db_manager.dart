@@ -34,11 +34,17 @@ class Medicines extends Table{
   TextColumn get whetherTakenList => text().map(TimeListConverter())();
 }
 
-@DriftDatabase(tables: [Medicines])
+class DailyLogs extends Table{
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get date => text()();
+  TextColumn get log => text()();
+}
+
+@DriftDatabase(tables: [Medicines, DailyLogs])
 class DBManager extends _$DBManager {
   DBManager() : super(_openConnection());
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
 
   @override
@@ -71,17 +77,26 @@ class DBManager extends _$DBManager {
     return (delete(medicines)..where((tbl) => tbl.id.equals(id))).go();
   }
 
-  Future deleteAllMedicine(int id){
+  Future deleteAllMedicine(){
     return (delete(medicines)..where((tbl) => tbl.id.isBiggerThanValue(-2))).go();
   }
 
-  Future<Medicine> searchById(int id){
+  Future<Medicine> searchMedicineById(int id){
     return (select(medicines)..where((tbl) => tbl.id.equals(id))).getSingle();
   }
+
+  Future deleteAllLog(){
+    return (delete(dailyLogs)..where((tbl) => tbl.id.isBiggerThanValue(-2))).go();
+  }
+
+  Future<List<DailyLog>> searchLogByDate(String date){
+    return (select(dailyLogs)..where((tbl) => tbl.date.equals(date))).get();
+  }
+
+
 }
 
 LazyDatabase _openConnection() {
-
   return LazyDatabase(() async {
     final dbFolder = await getApplicationDocumentsDirectory();
     final file = File(p.join(dbFolder.path, 'db.sqlite'));

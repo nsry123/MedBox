@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:cron/cron.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:group_radio_button/group_radio_button.dart';
@@ -38,6 +39,7 @@ class _MedicineEntryState extends State<MedicineEntry> {
   final _dosePerDayController = TextEditingController();
   final choices = ["每天服用X次", "每隔X天服用Y次", "按周规划", "按月规划"];
   late StreamSubscription OCRsubscription;
+  final cron = Cron();
   String _chosen = "每天服用X次";
   late Widget _buttons;
   List pages = [];
@@ -61,7 +63,7 @@ class _MedicineEntryState extends State<MedicineEntry> {
     ));
   }
 
-  void _onNextButtonPressed() {
+  void _onNextButtonPressed() async{
     if(_pos==0){
       if(_form.currentState!.validate()){
         print("Page 1 Correct Input!");
@@ -94,6 +96,17 @@ class _MedicineEntryState extends State<MedicineEntry> {
     }
     else if(_pos==3){
       // CustomNotification2("finish_medicine_entry").dispatch(context);
+      // cron.close();
+      cron.schedule(Schedule.parse("00 02 * * *"), () async{
+        List<Medicine> _medicines = await widget.database.select(widget.database.medicines).get();
+        _medicines.forEach((element) async {
+          for(int i=0;i<element.whetherTakenList.length;i++){
+            element.whetherTakenList[i] = "-1";
+          }
+          await widget.database.update(widget.database.medicines).replace(element);
+          print("finish refreshing");
+        });
+      });
       bus.fire(CustomEvent("finish_add_medicine"));
       if (Navigator.canPop(context)) {
         Navigator.pop(context);
@@ -405,7 +418,6 @@ class _MedicineEntryState extends State<MedicineEntry> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-
         Expanded(
             flex: 1,
             child: Container(
