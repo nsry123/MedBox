@@ -146,6 +146,7 @@ class _DailyDetailPageState extends State<DailyDetailPage> {
                                         medList: results[0],
                                         whetherTaken: results[1],
                                         isViewOnly: true,
+                                        payloadFromNotification: "none",
                                       )
                                   )
                               );

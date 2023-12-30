@@ -68,6 +68,7 @@ class DBManager extends _$DBManager {
           // we added the dueDate property in the change from version 3 to
           // version 4
           await m.addColumn(medicines,medicines.whetherTakenList);
+          await m.createTable(dailyLogs);
         }
       },
     );

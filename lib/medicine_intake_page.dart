@@ -150,7 +150,9 @@ class _MedicineIntakePageState extends State<MedicineIntakePage> {
                   for(int i=0;i<_checkedMedicine.length;i++){
                     if(_checkedMedicine[i]){
                       _medicine = widget.medList![i];
-                      _medicine.whetherTakenList[_medicine.timesList.indexOf(widget.time)] = tz.TZDateTime.now(tz.local).hour.toString()+":"+tz.TZDateTime.now(tz.local).minute.toString();
+                      String hh = tz.TZDateTime.now(tz.local).hour<10 ? "0"+tz.TZDateTime.now(tz.local).hour.toString() : tz.TZDateTime.now(tz.local).hour.toString();
+                      String mm = tz.TZDateTime.now(tz.local).minute<10 ? "0"+tz.TZDateTime.now(tz.local).minute.toString() : tz.TZDateTime.now(tz.local).minute.toString();
+                      _medicine.whetherTakenList[_medicine.timesList.indexOf(widget.time)] = hh+":"+mm;
                       print(_medicine.name);
                       print(_medicine.whetherTakenList);
                       print(_medicine.timesList);

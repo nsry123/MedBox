@@ -230,8 +230,10 @@ class _TodoPageState extends State<TodoPage> {
                     else if (scheduledDate.isBefore(now)) {
                       // print("before");
                       _content+=", 已过期";
+                      setNotification(_idString!, _eachTime,_eachTime+"服药提醒","您计划了"+_eachTime+"的服药，请点击查看",index);
+                    }else{
+                      setNotification(_idString!, _eachTime,_eachTime+"服药提醒","您计划了"+_eachTime+"的服药，请点击查看",index);
                     }
-                    setNotification(_idString!, _eachTime,_eachTime+"服药提醒","您计划了"+_eachTime+"的服药，请点击查看",index);
                     // String time = _timesList[index];
                     return Card(
                         shape: RoundedRectangleBorder(

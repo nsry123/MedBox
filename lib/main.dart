@@ -447,12 +447,6 @@ class _MyHomePageState extends State<MyHomePage> {
         appBar: AppBar(
             backgroundColor: Theme.of(context).colorScheme.inversePrimary,
             title: Text(titles[_bnvPos]),
-            actions: [
-              IconButton(onPressed: () async{
-                // await zonedScheduleNotification("123", "456", "789", 5);
-
-              }, icon: Icon(Icons.add))
-            ],
         ),
         body: getPages()[_bnvPos],
         bottomNavigationBar: BottomNavigationBar(

@@ -173,7 +173,7 @@ class _OcrState extends State<OcrPage> {
           } else {
             // print(index);
             return GestureDetector(
-              child: Text("加号"),
+              child: Text(""),
               onTap: () {
                 showDialog(
                     context: context,
@@ -210,7 +210,7 @@ class _OcrState extends State<OcrPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text('Text Recognition'),
+          title: const Text('外文药品图像识别'),
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         ),
         floatingActionButton: FloatingActionButton(
@@ -242,6 +242,10 @@ class _OcrState extends State<OcrPage> {
                   TextButton(
                       onPressed: () async{
                         if(_imagePaths.length==0){
+
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                            content: Text("未上传图片！"),
+                          ));
                           return;
                         }
                         setState(() {
