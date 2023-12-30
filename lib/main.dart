@@ -11,6 +11,7 @@ import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:test1/calendar_page.dart';
 import 'package:test1/medicine_change.dart';
 import 'package:test1/medicine_entry.dart';
+import 'package:test1/medicine_intake_page.dart';
 import 'package:test1/todo_page.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -30,6 +31,8 @@ Future<void> _configureLocalTimeZone() async {
   tz.setLocalLocation(tz.getLocation(timeZoneName!));
 }
 
+
+
 Future<void> main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await _configureLocalTimeZone();
@@ -40,7 +43,7 @@ Future<void> main() async{
   String initialRoute = HomePage.routeName;
   if (notificationAppLaunchDetails?.didNotificationLaunchApp ?? false) {
     selectedNotificationPayload = notificationAppLaunchDetails!.notificationResponse?.payload;
-    initialRoute = IntakePage.routeName;
+    initialRoute = MedicineIntakePage.routeName;
   }
 
   const AndroidInitializationSettings initializationSettingsAndroid =
@@ -150,6 +153,21 @@ const MethodChannel platform = MethodChannel('dexterx.dev/flutter_local_notifica
 
 const String portName = 'notification_send_port';
 
+Future<void> zonedScheduleNotification(String title, String body, String payload, int seconds) async {
+  await flutterLocalNotificationsPlugin.zonedSchedule(
+      0,
+      title,
+      body,
+      tz.TZDateTime.now(tz.local).add(Duration(seconds: seconds)),
+      const NotificationDetails(
+          android: AndroidNotificationDetails('your channel id', 'your channel name', channelDescription: 'your channel description')
+      ),
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+      payload: payload
+  );
+}
+
 class NotificationHelper {
 
   /// Initialize notification
@@ -201,17 +219,19 @@ class NotificationHelper {
       print("${value.length} pending notifications");
     });
   }
-  Future<void> zonedScheduleNotification(int seconds) async {
+  Future<void> zonedScheduleNotification(String title, String body, String payload, int seconds) async {
     await flutterLocalNotificationsPlugin.zonedSchedule(
         0,
-        'scheduled title',
-        'scheduled body',
+        title,
+        body,
         tz.TZDateTime.now(tz.local).add(Duration(seconds: seconds)),
         const NotificationDetails(
-            android: AndroidNotificationDetails('your channel id', 'your channel name',
-                channelDescription: 'your channel description')),
+            android: AndroidNotificationDetails('your channel id', 'your channel name', channelDescription: 'your channel description')
+        ),
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime);
+        uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+        payload: payload
+    );
   }
 
   /// Scheduled Notification
@@ -232,7 +252,7 @@ class NotificationHelper {
           'your channel name',
           channelDescription: 'your channel description',
           importance: Importance.max,
-          priority: Priority.high,
+          priority: Priority.max,
           // sound: RawResourceAndroidNotificationSound(sound),
         ),
         iOS: DarwinNotificationDetails(),
@@ -368,10 +388,11 @@ class _MyHomePageState extends State<MyHomePage> {
   void _configureSelectNotificationSubject() {
     // runApp(const MyApp());
     selectNotificationStream.stream.listen((String? payload) async {
-      // await Navigator.of(context).push(MaterialPageRoute<void>(
-      //   builder: (BuildContext context) => IntakePage(payload),
-      // ));
-      await Navigator.of(context).pushNamed("/main");
+      await Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (BuildContext context) => MedicineIntakePage(payloadFromNotification: payload, database: database),
+        ),
+      );
     });
   }
 
@@ -390,9 +411,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 Navigator.of(context, rootNavigator: true).pop();
                 await Navigator.of(context).push(
                   MaterialPageRoute<void>(
-                    builder: (BuildContext context) => IntakePage(receivedNotification.payload),
+                    builder: (BuildContext context) => MedicineIntakePage(payloadFromNotification: receivedNotification.payload, database: database),
                   ),
                 );
+                // await Navigator.of(context).pushNamed("/main");
               },
               child: const Text('Ok'),
             )
@@ -425,6 +447,12 @@ class _MyHomePageState extends State<MyHomePage> {
         appBar: AppBar(
             backgroundColor: Theme.of(context).colorScheme.inversePrimary,
             title: Text(titles[_bnvPos]),
+            actions: [
+              IconButton(onPressed: () async{
+                // await zonedScheduleNotification("123", "456", "789", 5);
+
+              }, icon: Icon(Icons.add))
+            ],
         ),
         body: getPages()[_bnvPos],
         bottomNavigationBar: BottomNavigationBar(
@@ -454,50 +482,4 @@ class _MyHomePageState extends State<MyHomePage> {
       )
     );
   }
-}
-
-class IntakePage extends StatefulWidget {
-  const IntakePage(
-      this.payload, {
-        Key? key,
-      }) : super(key: key);
-
-  static const String routeName = '/intakePage';
-
-  final String? payload;
-
-  @override
-  State<StatefulWidget> createState() => IntakePageState();
-}
-
-class IntakePageState extends State<IntakePage> {
-  String? _payload;
-
-  @override
-  void initState() {
-    super.initState();
-
-    _payload = widget.payload;
-  }
-
-  @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(
-      title: const Text('Second Screen'),
-    ),
-    body: Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          Text('payload ${_payload ?? ''}'),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: const Text('Go back!'),
-          ),
-        ],
-      ),
-    ),
-  );
 }

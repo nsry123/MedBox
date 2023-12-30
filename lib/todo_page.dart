@@ -11,7 +11,9 @@ import 'package:timezone/timezone.dart';
 
 import 'db/db_manager.dart';
 
-
+Future<void> _cancelAllNotifications() async {
+  await flutterLocalNotificationsPlugin.cancelAll();
+}
 
 class TodoPage extends StatefulWidget {
   final DBManager database;
@@ -63,7 +65,7 @@ class _TodoPageState extends State<TodoPage> {
           log: _logToday
       );
       await widget.database.update(widget.database.dailyLogs).replace(_log);
-      print("update today completed!");
+      // print("update today completed!");
       // print(_log.log);
     }
 
@@ -85,6 +87,27 @@ class _TodoPageState extends State<TodoPage> {
     });
   }
 
+  tz.TZDateTime _nextInstanceOfTime(int hour, int minute) {
+    final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
+    tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, now.year, now.month, now.day, hour,minute);
+    if (scheduledDate.isBefore(now)) {
+      scheduledDate = scheduledDate.add(const Duration(days: 1));
+    }
+    return scheduledDate;
+  }
+
+
+  Future<void> setNotification (String idString, String eachTime, String title, String body, int id)async{
+    // await _cancelAllNotifications();
+    List results = [];
+    results = await _getMedicineListById(idString!.split(";"), eachTime);
+    results.add(eachTime);
+    await zonedScheduleNotification(title, body, jsonEncode(results), 5,id,int.parse(eachTime.split(":")[0]),int.parse(eachTime.split(":")[1]));
+    // print(jsonDecode(jsonEncode(results))[0][0].runtimeType);
+    // print("123");
+    print("alarm for"+eachTime+"set");
+  }
+
   @override
   void initState(){
     updateMedInfo();
@@ -93,6 +116,28 @@ class _TodoPageState extends State<TodoPage> {
       updateMedInfo();
     });
 
+  }
+
+
+  Future<void> zonedScheduleNotification(String title, String body, String payload, int seconds, int id, int hour, int minute) async {
+    await flutterLocalNotificationsPlugin.zonedSchedule(
+        id,
+        title,
+        body,
+        _nextInstanceOfTime(hour, minute),
+        const NotificationDetails(
+            android: AndroidNotificationDetails(
+                'your channel id',
+                'your channel name',
+                channelDescription: 'your channel description',
+                importance: Importance.max,
+                priority: Priority.max)
+        ),
+        androidScheduleMode: AndroidScheduleMode.alarmClock,
+        uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+        matchDateTimeComponents: DateTimeComponents.time,
+        payload: payload
+    );
   }
 
   Future<void> _zonedScheduleAlarmClockNotification(String payload) async {
@@ -163,6 +208,7 @@ class _TodoPageState extends State<TodoPage> {
     _medList = Map.fromEntries(_medList.entries.toList()..sort((e1,e2) => e1.key.compareTo(e2.key)));
 
     _timesList.sort();
+    _cancelAllNotifications();
     return Scaffold(
       body: Center(
         child: Column(
@@ -177,6 +223,7 @@ class _TodoPageState extends State<TodoPage> {
                     scheduledDate = tz.TZDateTime(tz.local, now.year, now.month, now.day, int.parse(_eachTime.substring(0,2)),int.parse(_eachTime.substring(3,5)));
                     String _content = _eachTime+"服用"+_medList[_eachTime]!;
                     String? _idString = _idList[_eachTime];
+
                     if (_whetherTakenDisplayed[_eachTime]==true){
                       _content+=", 已完成";
                     }
@@ -184,6 +231,7 @@ class _TodoPageState extends State<TodoPage> {
                       // print("before");
                       _content+=", 已过期";
                     }
+                    setNotification(_idString!, _eachTime,_eachTime+"服药提醒","您计划了"+_eachTime+"的服药，请点击查看",index);
                     // String time = _timesList[index];
                     return Card(
                         shape: RoundedRectangleBorder(
@@ -205,6 +253,7 @@ class _TodoPageState extends State<TodoPage> {
                                         medList: results[0],
                                         whetherTaken: results[1],
                                         isViewOnly: false,
+                                        payloadFromNotification: "none",
                                       )
                                   )
                               );

@@ -29,12 +29,10 @@ class _CalendarPageState extends State<CalendarPage> {
   }
 
 
-
   @override
   void initState(){
     updateLogInfo();
   }
-
 
 
   @override

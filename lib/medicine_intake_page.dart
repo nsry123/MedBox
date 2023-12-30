@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:test1/medbox_page.dart';
 import 'package:timezone/timezone.dart' as tz;
@@ -7,13 +9,16 @@ import 'db/db_manager.dart';
 
 
 class MedicineIntakePage extends StatefulWidget {
-  final DBManager database;
-  final List<Medicine> medList;
-  final String time;
-  final List<String> whetherTaken;
-  final bool isViewOnly;
-  const MedicineIntakePage({super.key, title, required this.database, required this.time, required this.medList, required this.whetherTaken, required this.isViewOnly});
-  final String title = "服药";
+
+  MedicineIntakePage({super.key, title, this.database, this.time, this.medList, this.whetherTaken, this.isViewOnly, this.payloadFromNotification});
+  DBManager? database;
+  List<Medicine>? medList;
+  String? time;
+  List<String>? whetherTaken;
+  bool? isViewOnly;
+  String? title = "服药";
+  String? payloadFromNotification;
+  static const String routeName = '/medicineIntakePage';
   @override
   State<MedicineIntakePage> createState() => _MedicineIntakePageState();
 }
@@ -46,8 +51,39 @@ class _MedicineIntakePageState extends State<MedicineIntakePage> {
   }
   @override
   void initState() {
-    _checkedMedicine = List.filled(widget.medList.length, false);
-    _title = "服药: "+widget.time;
+    if(widget.payloadFromNotification!="none"){
+      List<Medicine> _tempMedList = [];
+      List<String> _tempWhetherTakenList = [];
+
+      print(widget.payloadFromNotification);
+      List<dynamic> jsonResults = jsonDecode(widget.payloadFromNotification!);
+      List<dynamic> medList = jsonResults[0];
+      List<dynamic> whetherTaken = jsonResults[1];
+
+      whetherTaken.forEach((element) {_tempWhetherTakenList.add(element);});
+      String time = jsonResults[2];
+
+      medList.forEach((element) {
+        _tempMedList.add(Medicine(
+            id: element['id'],
+            name: element['name'],
+            timesPerDay: element['timesPerDay'],
+            dosePerTime: element['dosePerTime'],
+            unit: element['unit'],
+            taboos: element['taboos'],
+            timesList: element['timesList'],
+            mode: element['mode'],
+            whetherTakenList: element['whetherTakenList']
+        ));
+      });
+
+      widget.whetherTaken = _tempWhetherTakenList;
+      widget.medList = _tempMedList;
+      widget.time = time;
+      widget.isViewOnly = false;
+    }
+    _checkedMedicine = List.filled(widget.medList!.length, false);
+    _title = "服药: "+widget.time!;
   }
   @override
   Widget build(BuildContext context){
@@ -62,7 +98,7 @@ class _MedicineIntakePageState extends State<MedicineIntakePage> {
           children: [
             Expanded(
               child:ListView.builder(
-                itemCount: widget.medList.length,
+                itemCount: widget.medList!.length,
                 itemBuilder: (context, index){
                   return InkWell(
                     child: Row(
@@ -72,13 +108,13 @@ class _MedicineIntakePageState extends State<MedicineIntakePage> {
                           margin: EdgeInsets.fromLTRB(10, 10, 0, 10),
                           child: Column(
                             children: [
-                              Text(widget.medList[index].name, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),),
+                              Text(widget.medList![index].name, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),),
                               Text("服用方式: 一次"+
-                                  widget.medList[index].dosePerTime.toString()+
-                                  widget.medList[index].unit,
+                                  widget.medList![index].dosePerTime.toString()+
+                                  widget.medList![index].unit,
                                   style: TextStyle(fontSize: 20),
                               ),
-                              Text("禁忌: "+widget.medList[index].taboos,
+                              Text("禁忌: "+widget.medList![index].taboos,
                                   style: TextStyle(fontSize: 20),
                               )
                             ],
@@ -86,16 +122,16 @@ class _MedicineIntakePageState extends State<MedicineIntakePage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                           ),
                         ),
-                        widget.whetherTaken[index]=="-1"
+                        widget.whetherTaken![index]=="-1"
                         ?  (widget.isViewOnly==false?  Checkbox(
                           value: _checkedMedicine[index],
                           onChanged: (value){}
                         ): Container(child: Text("未服用",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20),),margin: EdgeInsets.fromLTRB(0, 0, 10, 0),))
-                        :Container(child: Text("已于"+widget.whetherTaken[index]+"\n服用",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20),),margin: EdgeInsets.fromLTRB(0, 0, 10, 0),)
+                        :Container(child: Text("已于"+widget.whetherTaken![index]+"\n服用",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20),),margin: EdgeInsets.fromLTRB(0, 0, 10, 0),)
                       ],
                     ),
                     onTap: (){
-                      if(widget.whetherTaken[index]=="-1"){
+                      if(widget.whetherTaken![index]=="-1"){
                         setState(() {
                           _checkedMedicine[index] = ! _checkedMedicine[index];
                         });
@@ -113,12 +149,12 @@ class _MedicineIntakePageState extends State<MedicineIntakePage> {
                   Medicine _medicine;
                   for(int i=0;i<_checkedMedicine.length;i++){
                     if(_checkedMedicine[i]){
-                      _medicine = widget.medList[i];
+                      _medicine = widget.medList![i];
                       _medicine.whetherTakenList[_medicine.timesList.indexOf(widget.time)] = tz.TZDateTime.now(tz.local).hour.toString()+":"+tz.TZDateTime.now(tz.local).minute.toString();
                       print(_medicine.name);
                       print(_medicine.whetherTakenList);
                       print(_medicine.timesList);
-                      await widget.database.update(widget.database.medicines).replace(_medicine);
+                      await widget.database!.update(widget.database!.medicines).replace(_medicine);
                     }
                   }
                   bus.fire(FinishIntakeEvent("Finish medicine intake"));
