@@ -1,7 +1,7 @@
 {
   "page_1_title": "今日待服",
   "page_1_tab_title": "待服",
-  "intake_at": "%s服用%s",
+  "intake_at": "%s%s",
   "expired": "已过期",
   "finished": "已完成",
   "intake_medicine": "服药：",
@@ -40,7 +40,7 @@
   "add_medicine": "添加药物",
   "what_medicine_do_you_want_to_add": "您想添加什么药品？",
   "cannot_be_empty": "%s不能为空！",
-  "how_do_you_want_to_take": "您想如何服用%s？",
+  "how_do_you_want_to_take": "服用计划",
   "last_step": "上一步",
   "next_step": "下一步",
   "finish_adding": "添加完成！",

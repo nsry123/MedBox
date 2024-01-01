@@ -269,10 +269,14 @@ class _TodoPageState extends State<TodoPage> {
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Text(
-                                          _content,
-                                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30)
+                                      SingleChildScrollView(
+                                        child: Text(
+                                            _content,
+                                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25)),
+                                        scrollDirection: Axis.horizontal,
+                                        clipBehavior: Clip.antiAliasWithSaveLayer,
                                       ),
+
                                       Icon(Icons.keyboard_arrow_right,size: 30,)
                                     ],
                                   ),

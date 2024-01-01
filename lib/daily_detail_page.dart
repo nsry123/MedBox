@@ -162,9 +162,9 @@ class _DailyDetailPageState extends State<DailyDetailPage> {
                                     children: [
                                       Text(
                                           _content,
-                                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30)
+                                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25)
                                       ),
-                                      Icon(Icons.keyboard_arrow_right,size: 30,)
+                                      Icon(Icons.keyboard_arrow_right,size: 30)
                                     ],
                                   ),
                                 ],

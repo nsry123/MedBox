@@ -345,24 +345,26 @@ class MyApp extends StatelessWidget {
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
+        // MaterialLocalizationZh.delegate,
         LocalJsonLocalization.delegate,
+
       ],
       supportedLocales: [
         Locale("en"),
-        Locale("cn"),
+        Locale("zh"),
       ],
       localeResolutionCallback: (locale, supportedLocales) {
         print(locale);
         if (supportedLocales.contains(locale)) {
           return locale;
         }
-        if(locale?.languageCode=="cn"){
-          return Locale("cn");
+        if(locale?.languageCode=="zh"){
+          return Locale("zh");
         }
         if(locale?.languageCode=="en"){
           return Locale("en");
         }
-        return Locale('en');
+        return Locale('zh');
       },
 
     );

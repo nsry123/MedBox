@@ -40,7 +40,7 @@
   "add_medicine": "Add Medicine",
   "what_medicine_do_you_want_to_add": "Basic Information",
   "cannot_be_empty": "%s cannot be empty!",
-  "how_do_you_want_to_take": "How do you want to take %s?",
+  "how_do_you_want_to_take": "Intake Schedule",
   "last_step": "Back",
   "next_step": "Next Step",
   "finish_adding": "Finish Adding!",
@@ -60,7 +60,7 @@
   "scan_failed_detail": "Medicine packaging information not recognized. Please take the correct photo of the drug packaging and try again",
   "ask_delete_image": "Confirm deleting the image?",
   "confirm": "Confirm",
-  "cancel": "Calcel",
+  "cancel": "Cancel",
   "too_many_images": "Too many images selected! Maximum 9",
 
 
