@@ -1,0 +1,72 @@
+{
+  "page_1_title": "今日待服",
+  "page_1_tab_title": "待服",
+  "intake_at": "%s服用%s",
+  "expired": "已过期",
+  "finished": "已完成",
+  "intake_medicine": "服药：",
+  "method:": "服用方式：",
+  "taboos:": "药品禁忌：",
+  "every_time": "每次%s%s",
+  "confirm_intake": "确定服用",
+  "finished_at": "已于%s\n服用",
+
+  "page_2_title": "我的药历",
+  "page_2_tab_title": "药历",
+  "date": "%s年%s月%s日",
+  "not_taken": "未服用",
+  "no_data_at_that_day": "当天没有药品数据！",
+
+  "page_3_title": "全部药品",
+  "page_3_tab_title": "药盒",
+  "every_day": "每日%s次",
+  "basic_information": "基础信息",
+  "medicine_name": "药品名称",
+  "dose_per_time": "单次剂量",
+  "unit": "单位",
+  "taboos": "药品禁忌",
+  "intake_schedule": "服用计划",
+  "everyday_x_times": "每天服用X次",
+  "please_set_specific_times": "请设置具体时间",
+  "times_per_day": "服用次数",
+  "tpd_cannot_be_0": "服用次数不能为0！",
+  "nth_time": "第%s次",
+
+  "select_time_help": "请选择时间(24小时制)",
+  "time_input_illegal": "输入时间不合法",
+  "hour_label": "时",
+  "minute_label": "分",
+
+  "add_medicine": "添加药物",
+  "what_medicine_do_you_want_to_add": "您想添加什么药品？",
+  "cannot_be_empty": "%s不能为空！",
+  "how_do_you_want_to_take": "您想如何服用%s？",
+  "last_step": "上一步",
+  "next_step": "下一步",
+  "finish_adding": "添加完成！",
+  "finish": "完成",
+
+
+  "medicine_ocr": "药品图像识别",
+  "chinese": "中文",
+  "english": "英文",
+  "start_scannning": "开始扫描",
+  "image_not_uploaded": "未上传图片！",
+  "please_select_image": "请选择图片",
+  "camera": "相机",
+  "gallery": "相册",
+  "loading": "加载中...",
+  "scan_failed": "扫描失败",
+  "scan_failed_detail": "未识别到药品包装信息，请正确拍摄药品包装并重试",
+  "ask_delete_image": "是否删除该图片？",
+  "confirm": "确定",
+  "cancel": "取消",
+  "too_many_images": "选择图片过多！最多选择9张",
+
+  "medicine_notification": "服药提醒",
+  "you_scheduled_intake": "您计划了%s的服药，请点击查看",
+
+  "modify_medicine": "编辑药物"
+
+
+}

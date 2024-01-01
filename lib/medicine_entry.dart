@@ -5,6 +5,7 @@ import 'package:cron/cron.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:group_radio_button/group_radio_button.dart';
+import 'package:localization/localization.dart';
 import 'package:test1/db/db_manager.dart';
 import 'package:test1/ocr_page.dart';
 
@@ -13,9 +14,9 @@ import 'medbox_page.dart';
 
 class MedicineEntry extends StatefulWidget {
   final DBManager database;
-  const MedicineEntry({super.key, title, required this.database});
+  const MedicineEntry({super.key, required this.title, required this.database});
 
-  final String title = "添加药物";
+  final String title;
 
   @override
   State<MedicineEntry> createState() => _MedicineEntryState();
@@ -37,10 +38,11 @@ class _MedicineEntryState extends State<MedicineEntry> {
   final _medUnitController = TextEditingController();
   final _medTabooController = TextEditingController();
   final _dosePerDayController = TextEditingController();
-  final choices = ["每天服用X次", "每隔X天服用Y次", "按周规划", "按月规划"];
+  // final choices = ["everyday_x_times".i18n(), "每隔X天服用Y次", "按周规划", "按月规划"];
+  final choices = ["everyday_x_times".i18n()];
   late StreamSubscription OCRsubscription;
   final cron = Cron();
-  String _chosen = "每天服用X次";
+  String _chosen = "everyday_x_times".i18n();
   late Widget _buttons;
   List pages = [];
   List times = [];
@@ -131,7 +133,7 @@ class _MedicineEntryState extends State<MedicineEntry> {
       children: [
         Container(
           margin: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-          child: Text("第$index次",style: const TextStyle(fontWeight: FontWeight.bold,fontSize: 20)),
+          child: Text("nth_time".i18n([index.toString()]),style: const TextStyle(fontWeight: FontWeight.bold,fontSize: 20)),
         ),
         Listener(
           onPointerDown: (PointerDownEvent event) {
@@ -153,10 +155,10 @@ class _MedicineEntryState extends State<MedicineEntry> {
       initialTime: TimeOfDay.now(),
       initialEntryMode: TimePickerEntryMode.input,
       useRootNavigator: true,
-      helpText: "请选择时间(24小时制)",
-      errorInvalidText: "输入时间不合法",
-      hourLabelText: "时", // 小时 提示语
-      minuteLabelText: "分",
+      helpText: "select_time_help".i18n(),
+      errorInvalidText: "time_input_illegal".i18n(),
+      hourLabelText: "hour_label".i18n(), // 小时 提示语
+      minuteLabelText: "minute_label".i18n(),
       builder: (BuildContext context, Widget? child) {
         return MediaQuery(
           data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
@@ -215,7 +217,7 @@ class _MedicineEntryState extends State<MedicineEntry> {
         children: [
           Container(
               padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-              child:const Text("请设置具体时间",style: TextStyle(
+              child: Text("please_set_specific_times".i18n(),style: TextStyle(
                 fontSize: 30,
                 fontWeight: FontWeight.bold,
               ),)
@@ -226,15 +228,15 @@ class _MedicineEntryState extends State<MedicineEntry> {
                 child:Container(
                     padding:const EdgeInsets.fromLTRB(10, 0, 10, 0),
                     child: TextFormField(
-                      decoration: const InputDecoration(labelText: "服用次数"),
+                      decoration:  InputDecoration(labelText: "times_per_day".i18n()),
                       maxLength: 1,
 
                       validator: (text){
                         if(text!.isEmpty){
-                          return "服用次数不能为空!";
+                          return "cannot_be_empty".i18n(["times_per_day".i18n()]);
                         }
                         if(int.parse(text)==0){
-                          return "服用次数不能为0!";
+                          return "tpd_cannot_be_0".i18n();
                         }
                         return null;
 
@@ -277,7 +279,7 @@ class _MedicineEntryState extends State<MedicineEntry> {
         children: [
           Container(
               padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-              child:Text("您想如何服用 ${_medNameController.text}?",style: const TextStyle(
+              child:Text("how_do_you_want_to_take".i18n([_medNameController.text]),style: const TextStyle(
                 fontSize: 30,
                 fontWeight: FontWeight.bold,
               ),)
@@ -310,7 +312,7 @@ class _MedicineEntryState extends State<MedicineEntry> {
         children: [
           Container(
               padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-              child:const Text("您想添加什么药品？",style: TextStyle(
+              child: Text("what_medicine_do_you_want_to_add".i18n(),style: const TextStyle(
                 fontSize: 30,
                 fontWeight: FontWeight.bold,
               ),
@@ -324,11 +326,11 @@ class _MedicineEntryState extends State<MedicineEntry> {
                   child: Container(
                     padding:const EdgeInsets.fromLTRB(10, 0, 10, 0),
                     child: TextFormField(
-                      decoration: const InputDecoration(labelText: "药品名称"),
+                      decoration:  InputDecoration(labelText: "medicine_name".i18n()),
                       controller: _medNameController,
                       validator: (text){
                         if(text!.isEmpty){
-                          return "药品名称不能为空!";
+                          return "cannot_be_empty".i18n(["medicine_name".i18n()]);
                         }
                         return null;
                       },
@@ -347,11 +349,11 @@ class _MedicineEntryState extends State<MedicineEntry> {
                   child: Container(
                       padding:const EdgeInsets.fromLTRB(10, 0, 10, 0),
                       child: TextFormField(
-                        decoration: const InputDecoration(labelText: "单次剂量"),
+                        decoration:  InputDecoration(labelText: "dose_per_time".i18n()),
                         controller: _medDoseController,
                         validator: (text){
                           if(text!.isEmpty){
-                            return "单次剂量不能为空!";
+                            return "cannot_be_empty".i18n(["dose_per_time".i18n()]);
                           }
                           return null;
                         },
@@ -367,11 +369,11 @@ class _MedicineEntryState extends State<MedicineEntry> {
                   child: Container(
                       padding:const EdgeInsets.fromLTRB(10, 0, 10, 0),
                       child: TextFormField(
-                        decoration: const InputDecoration(labelText: "单位"),
+                        decoration: InputDecoration(labelText: "unit".i18n()),
                         controller: _medUnitController,
                         validator: (text){
                           if(text!.isEmpty){
-                            return "单位不能为空!";
+                            return "cannot_be_empty".i18n(["unit".i18n()]);
                           }
                           return null;
                         },
@@ -389,11 +391,11 @@ class _MedicineEntryState extends State<MedicineEntry> {
                   child: Container(
                       padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                       child: TextFormField(
-                        decoration: const InputDecoration(labelText: "药品禁忌"),
+                        decoration:  InputDecoration(labelText: "taboos".i18n()),
                         controller: _medTabooController,
                         validator: (text){
                           if(text!.isEmpty){
-                            return "禁忌不能为空!";
+                            return "cannot_be_empty".i18n(["taboos".i18n()]);
                           }
                           return null;
                         },
@@ -410,7 +412,7 @@ class _MedicineEntryState extends State<MedicineEntry> {
   Widget buildPage4(){
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: [Text("添加完成！",style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold))],
+      children: [Text("finish_adding".i18n(),style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold))],
     );
   }
 
@@ -424,7 +426,7 @@ class _MedicineEntryState extends State<MedicineEntry> {
                 padding: const EdgeInsets.fromLTRB(10.0,12.0,10.0,12.0),
                 child: ElevatedButton(
                   onPressed: _onBackButtonPressed,
-                  child: const Text("上一步"),
+                  child:  Text("last_step".i18n()),
                 )
             )
         ),
@@ -436,7 +438,7 @@ class _MedicineEntryState extends State<MedicineEntry> {
                 child:
                 ElevatedButton(
                   onPressed: _onNextButtonPressed,
-                  child: Text("下一步"),
+                  child: Text("next_step".i18n()),
                 )
             )
         ),
@@ -456,7 +458,7 @@ class _MedicineEntryState extends State<MedicineEntry> {
                 child:
                 ElevatedButton(
                   onPressed: _onNextButtonPressed,
-                  child: Text("完成"),
+                  child: Text("finish".i18n()),
                 )
             )
         ),
@@ -495,7 +497,7 @@ class _MedicineEntryState extends State<MedicineEntry> {
               onPressed: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) => OcrPage()));
               },
-              icon: Icon(Icons.add),
+              icon: Icon(Icons.document_scanner_outlined),
           )
         ],
       ),

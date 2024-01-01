@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:localization/localization.dart';
 import 'package:test1/daily_detail_page.dart';
 
 import 'db/db_manager.dart';
@@ -63,7 +64,7 @@ class _CalendarPageState extends State<CalendarPage> {
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                      _dateInfo[0]+"年"+_dateInfo[1]+"月"+_dateInfo[2]+"日",
+                                      "date".i18n([_dateInfo[0],_dateInfo[1],_dateInfo[2]]),
                                       style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30)
                                   ),
                                   Icon(Icons.keyboard_arrow_right,size: 30,)
@@ -80,13 +81,13 @@ class _CalendarPageState extends State<CalendarPage> {
                                     builder: (context)=>DailyDetailPage(
                                         database: widget.database,
                                         medInfo: _logList[index].log,
-                                        title: _dateInfo[0]+"年"+_dateInfo[1]+"月"+_dateInfo[2]+"日"
+                                        title: "date".i18n([_dateInfo[0],_dateInfo[1],_dateInfo[2]])
                                     )
                                 )
                             );
                           }else{
-                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                              content: Text("当天没有药品数据!"),
+                            ScaffoldMessenger.of(context).showSnackBar( SnackBar(
+                              content: Text("no_data_at_that_day".i18n()),
                             ));
                           }
                         },

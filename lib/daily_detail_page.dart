@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:localization/localization.dart';
 import 'package:test1/medicine_intake_page.dart';
 import 'package:timezone/timezone.dart' as tz;
 
@@ -116,14 +117,14 @@ class _DailyDetailPageState extends State<DailyDetailPage> {
                   itemBuilder: (context,index){
                     String _eachTime = _medList.keys.toList()[index];
                     scheduledDate = tz.TZDateTime(tz.local, now.year, now.month, now.day, int.parse(_eachTime.substring(0,2)),int.parse(_eachTime.substring(3,5)));
-                    String _content = _eachTime+"服用"+_medList[_eachTime]!;
+                    String _content = "intake_at".i18n([_eachTime,_medList[_eachTime]!]);
                     String? _idString = _idList[_eachTime];
                     if (_whetherTakenDisplayed[_eachTime]==true){
-                      _content+=", 已完成";
+                      _content+=", "+"finished".i18n();
                     }
                     else {
                       // print("before");
-                      _content+=", 未完成";
+                      _content+=", "+"expired".i18n();
                     }
                     // String time = _timesList[index];
                     return Card(

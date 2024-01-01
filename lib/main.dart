@@ -6,8 +6,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
+import 'package:localization/localization.dart';
 import 'package:test1/calendar_page.dart';
 import 'package:test1/medicine_change.dart';
 import 'package:test1/medicine_entry.dart';
@@ -326,17 +328,43 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-
+    LocalJsonLocalization.delegate.directories = ['lib/i18n'];
     return MaterialApp(
+
       title: 'Flutter Demo',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
       home: const MyHomePage(title: 'Flutter Demo Home Page'),
+
       routes:{
         "/main": (context) => MyHomePage(title: "title")
-      }
+      },
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        LocalJsonLocalization.delegate,
+      ],
+      supportedLocales: [
+        Locale("en"),
+        Locale("cn"),
+      ],
+      localeResolutionCallback: (locale, supportedLocales) {
+        print(locale);
+        if (supportedLocales.contains(locale)) {
+          return locale;
+        }
+        if(locale?.languageCode=="cn"){
+          return Locale("cn");
+        }
+        if(locale?.languageCode=="en"){
+          return Locale("en");
+        }
+        return Locale('en');
+      },
+
     );
   }
 }
@@ -351,22 +379,11 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _bnvPos = 0;
-  final List titles = ["今日待服","我的药历","全部药品"];
+  final List titles = ["page_1_title".i18n(),"page_2_title".i18n(),"page_3_title".i18n()];
   final database = DBManager();
 
   final List pages = [];
 
-  // @override
-  // Widget build(BuildContext context){
-  //   return Scaffold(
-  //     resizeToAvoidBottomInset: false,
-  //     appBar: AppBar(
-  //       backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-  //       title: Text("OCR"),
-  //     ),
-  //     body: OcrPage(),
-  //   );
-  // }
   @override
   void initState(){
     _requestPermissions();
@@ -375,7 +392,6 @@ class _MyHomePageState extends State<MyHomePage> {
     _configureSelectNotificationSubject();
     // database.delete(database.medicines);
     // database.deleteAllMedicine(0);
-
   }
 
   @override
@@ -434,11 +450,11 @@ class _MyHomePageState extends State<MyHomePage> {
         switch(notification.msg){
           case "to_medicine_entry":
             // Navigator.pushNamed(context, "medicine_entry",arguments: database);
-            Navigator.push(context, MaterialPageRoute(builder: (context)=>MedicineEntry(database: database)));
+            Navigator.push(context, MaterialPageRoute(builder: (context)=>MedicineEntry(database: database, title: "add_medicine".i18n(),)));
             return true;
         }
         if(notification.msg.startsWith("to_change_medicine_")){
-          Navigator.push(context, MaterialPageRoute(builder: (context)=>MedicineChange(database: database,medNum: int.parse(notification.msg.split("_").last),)));
+          Navigator.push(context, MaterialPageRoute(builder: (context)=>MedicineChange(title:"modify_medicine".i18n(),database: database,medNum: int.parse(notification.msg.split("_").last),)));
         }
         return true;
       },
@@ -447,6 +463,9 @@ class _MyHomePageState extends State<MyHomePage> {
         appBar: AppBar(
             backgroundColor: Theme.of(context).colorScheme.inversePrimary,
             title: Text(titles[_bnvPos]),
+            actions: [
+              // IconButton(onPressed: (){print('welcome-text'.i18n());}, icon: Icon(Icons.add))
+            ],
         ),
         body: getPages()[_bnvPos],
         bottomNavigationBar: BottomNavigationBar(
@@ -454,15 +473,15 @@ class _MyHomePageState extends State<MyHomePage> {
           fixedColor: Colors.blue,
           items:  [
             BottomNavigationBarItem(
-                label: "待服",
+                label: "page_1_tab_title".i18n(),
                 icon: _bnvPos==0 ? const Icon(Icons.fact_check_rounded) : const Icon(Icons.fact_check_outlined),
             ),
             BottomNavigationBarItem(
-                label: "药历",
+                label: "page_2_tab_title".i18n(),
                 icon: _bnvPos==1 ? const Icon(Icons.today_rounded) : const Icon(Icons.today_outlined),
             ),
             BottomNavigationBarItem(
-                label: "药盒",
+                label: "page_3_tab_title".i18n(),
                 icon: _bnvPos==2 ? const Icon(Icons.medical_services_rounded) : const Icon(Icons.medical_services_outlined),
             ),
             // Icons.med

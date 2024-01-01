@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:localization/localization.dart';
 import 'package:test1/main.dart';
 import 'package:test1/medbox_page.dart';
 import 'package:test1/medicine_intake_page.dart';
@@ -221,18 +222,18 @@ class _TodoPageState extends State<TodoPage> {
                   itemBuilder: (context,index){
                     String _eachTime = _medList.keys.toList()[index];
                     scheduledDate = tz.TZDateTime(tz.local, now.year, now.month, now.day, int.parse(_eachTime.substring(0,2)),int.parse(_eachTime.substring(3,5)));
-                    String _content = _eachTime+"服用"+_medList[_eachTime]!;
+                    String _content = "intake_at".i18n([_eachTime,_medList[_eachTime]!]);
                     String? _idString = _idList[_eachTime];
 
                     if (_whetherTakenDisplayed[_eachTime]==true){
-                      _content+=", 已完成";
+                      _content+=", "+"finished".i18n();
                     }
                     else if (scheduledDate.isBefore(now)) {
                       // print("before");
-                      _content+=", 已过期";
-                      setNotification(_idString!, _eachTime,_eachTime+"服药提醒","您计划了"+_eachTime+"的服药，请点击查看",index);
+                      _content+=", "+"expired".i18n();
+                      setNotification(_idString!, _eachTime,_eachTime+"medicine_notification".i18n(),"you_scheduled_intake".i18n([_eachTime]),index);
                     }else{
-                      setNotification(_idString!, _eachTime,_eachTime+"服药提醒","您计划了"+_eachTime+"的服药，请点击查看",index);
+                      setNotification(_idString!, _eachTime,_eachTime+"medicine_notification".i18n(),"you_scheduled_intake".i18n([_eachTime]),index);
                     }
                     // String time = _timesList[index];
                     return Card(
@@ -290,3 +291,5 @@ class _TodoPageState extends State<TodoPage> {
     );
   }
 }
+
+//localization done

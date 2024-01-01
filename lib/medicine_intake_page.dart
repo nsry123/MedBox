@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:localization/localization.dart';
 import 'package:test1/medbox_page.dart';
 import 'package:timezone/timezone.dart' as tz;
 
@@ -83,7 +84,7 @@ class _MedicineIntakePageState extends State<MedicineIntakePage> {
       widget.isViewOnly = false;
     }
     _checkedMedicine = List.filled(widget.medList!.length, false);
-    _title = "服药: "+widget.time!;
+    _title = "intake_medicine".i18n()+widget.time!;
   }
   @override
   Widget build(BuildContext context){
@@ -109,12 +110,11 @@ class _MedicineIntakePageState extends State<MedicineIntakePage> {
                           child: Column(
                             children: [
                               Text(widget.medList![index].name, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),),
-                              Text("服用方式: 一次"+
-                                  widget.medList![index].dosePerTime.toString()+
-                                  widget.medList![index].unit,
+                              Text("method:".i18n()+ "every_time".i18n([widget.medList![index].dosePerTime.toString(),
+                                  widget.medList![index].unit]),
                                   style: TextStyle(fontSize: 20),
                               ),
-                              Text("禁忌: "+widget.medList![index].taboos,
+                              Text("taboos:".i18n()+widget.medList![index].taboos,
                                   style: TextStyle(fontSize: 20),
                               )
                             ],
@@ -126,8 +126,8 @@ class _MedicineIntakePageState extends State<MedicineIntakePage> {
                         ?  (widget.isViewOnly==false?  Checkbox(
                           value: _checkedMedicine[index],
                           onChanged: (value){}
-                        ): Container(child: Text("未服用",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20),),margin: EdgeInsets.fromLTRB(0, 0, 10, 0),))
-                        :Container(child: Text("已于"+widget.whetherTaken![index]+"\n服用",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20),),margin: EdgeInsets.fromLTRB(0, 0, 10, 0),)
+                        ): Container(child: Text("not_taken".i18n(),style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20),),margin: EdgeInsets.fromLTRB(0, 0, 10, 0),))
+                        :Container(child: Text("finished_at".i18n([widget.whetherTaken![index]]),style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20),),margin: EdgeInsets.fromLTRB(0, 0, 10, 0),)
                       ],
                     ),
                     onTap: (){
@@ -163,7 +163,7 @@ class _MedicineIntakePageState extends State<MedicineIntakePage> {
                   Navigator.pop(context);
                 }:null,
                 child: Container(
-                  child: Text(style: TextStyle(fontSize: 20),"确定服用"),
+                  child: Text(style: TextStyle(fontSize: 20),"confirm_intake".i18n()),
                   margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
                 ),
               ):Container(),
@@ -174,3 +174,5 @@ class _MedicineIntakePageState extends State<MedicineIntakePage> {
     );
   }
 }
+
+//finished localization

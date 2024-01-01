@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:localization/localization.dart';
 
 import 'medbox_page.dart';
 
@@ -22,22 +23,18 @@ class OCREvent{
   final String msg;
 }
 
-abstract class ITextRecognizer {
-  Future<String> processImage(String imgPath);
-}
-
-class MyTextRecognizer extends ITextRecognizer {
+class MyTextRecognizer {
   late TextRecognizer recognizer;
 
-  MyTextRecognizer() {
-    recognizer = TextRecognizer();
+  MyTextRecognizer(this.script) {
+    recognizer = TextRecognizer(script: script);
   }
+  late TextRecognitionScript script;
 
   void dispose() {
     recognizer.close();
   }
 
-  @override
   Future<String> processImage(String imgPath) async {
     final image = InputImage.fromFilePath(imgPath);
     final recognized = await recognizer.processImage(image);
@@ -50,23 +47,23 @@ Widget imagePickAlert({
   void Function()? onGalleryPressed,
 }) {
   return AlertDialog(
-    title: const Text(
-      "请选择图片",
+    title: Text(
+      "please_select_image".i18n(),
     ),
     content: Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         ListTile(
           leading: const Icon(Icons.camera_alt),
-          title: const Text(
-            "相机",
+          title:  Text(
+            "camera".i18n(),
           ),
           onTap: onCameraPressed,
         ),
         ListTile(
           leading: const Icon(Icons.image),
-          title: const Text(
-            "相册",
+          title:  Text(
+            "gallery".i18n(),
           ),
           onTap: onGalleryPressed,
         ),
@@ -83,20 +80,21 @@ class _OcrState extends State<OcrPage> {
   List<String> _imagePaths = [];
   String _result = "";
   late StreamSubscription subscription;
+  TextRecognitionScript _script = TextRecognitionScript.chinese;
+  // List<TextRecognitionScript> _scriptOptions = [TextRecognitionScript.chinese,TextRecognitionScript.latin];
 
   @override
   void initState() {
     super.initState();
     _imagePicker = ImagePicker();
-    _recognizer = MyTextRecognizer();
+    _recognizer = MyTextRecognizer(_script);
     OpenAI.apiKey = "sk-OY6LgQtwdh4zK7yyB7689e39259849B8A1D23a5dF507555c";
     OpenAI.baseUrl = "https://api.132999.xyz";
-
   }
 
   Widget deleteImageAlert(int index) {
     return AlertDialog(
-      title: const Text("是否删除该图片？"),
+      title: Text("ask_delete_image".i18n()),
       content: Row(
         children: [
           TextButton(
@@ -107,12 +105,12 @@ class _OcrState extends State<OcrPage> {
                 Navigator.of(context).pop();
               },
 
-              child: Text("确定")),
+              child: Text("confirm".i18n())),
           TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text("取消"))
+              child: Text("cancel".i18n()))
         ],
       ),
     );
@@ -130,7 +128,9 @@ class _OcrState extends State<OcrPage> {
           });
         });
       } else {
-        print("选择图片过多！最大图片数量为9张！");
+        ScaffoldMessenger.of(context).showSnackBar( SnackBar(
+          content: Text("too_many_images".i18n()),
+        ));
       }
     } else {
       if (_imagePaths.length <= 8) {
@@ -139,8 +139,9 @@ class _OcrState extends State<OcrPage> {
           _imagePaths.add(file!.path);
         });
       } else {
-        print("选择图片过多！最大图片数量为9张！");
-
+        ScaffoldMessenger.of(context).showSnackBar( SnackBar(
+          content: Text("too_many_images".i18n()),
+        ));
       }
     }
   }
@@ -210,7 +211,7 @@ class _OcrState extends State<OcrPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text('外文药品图像识别'),
+          title: Text('medicine_ocr'.i18n()),
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         ),
         floatingActionButton: FloatingActionButton(
@@ -238,13 +239,47 @@ class _OcrState extends State<OcrPage> {
                   // Container(
                   //   child: Text("Result: " + _result),
                   // ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                          child: ListTile(
+                            title: Text("chinese".i18n()),
+                            leading: Radio<TextRecognitionScript>(
+                              value: TextRecognitionScript.chinese,
+                              onChanged: (value){
+                                setState(() {
+                                  _script = value!;
+                                  _recognizer = MyTextRecognizer(_script);
+                                });
+                              },
+                              groupValue: _script,
+                            ),
+                          ),
+                      ),
+                      Expanded(
+                        child:ListTile(
+                          title: Text("english".i18n()),
+                          leading: Radio<TextRecognitionScript>(
+                            value: TextRecognitionScript.latin,
+                            onChanged: (value){
+                              setState(() {
+                                _script = value!;
+                                _recognizer = MyTextRecognizer(_script);
+                              });
+                            },
+                            groupValue: _script,
+                          ),
+                        )
+                      )
+                    ],
+                  ),
                   buildImageGrid(),
                   TextButton(
                       onPressed: () async{
                         if(_imagePaths.length==0){
-
-                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                            content: Text("未上传图片！"),
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text("image_not_uploaded".i18n()),
                           ));
                           return;
                         }
@@ -253,12 +288,13 @@ class _OcrState extends State<OcrPage> {
                           _isLoading = 1;
                         });
                         String _tempResult = "";
-                        print("scan completed");
 
                         for(int i=0;i<_imagePaths.length;i++){
                           final _singleResult = await _recognizer.processImage(_imagePaths.elementAt(i));
                           _tempResult += _singleResult;
                         }
+                        print("scan completed");
+                        print(_tempResult);
 
                         OpenAIChatCompletionModel chatCompletion = await OpenAI.instance.chat.create(
                             model: "gpt-4",
@@ -286,8 +322,8 @@ class _OcrState extends State<OcrPage> {
                             showDialog(
                                 context: context,
                                 builder: (context) => AlertDialog(
-                                  title: Text("扫描失败"),
-                                  content: Text("未识别到药品包装信息，请正确拍摄药品包装并重试。"),
+                                  title: Text("scan_failed".i18n()),
+                                  content: Text("scan_failed_detail".i18n()),
                                   actions: [
                                     TextButton(
                                       onPressed: (){
@@ -297,7 +333,7 @@ class _OcrState extends State<OcrPage> {
                                           SystemNavigator.pop();
                                         }
                                       },
-                                      child: Text("确定")
+                                      child: Text("confirm".i18n())
                                     )
                                   ],
                                 )
@@ -322,7 +358,7 @@ class _OcrState extends State<OcrPage> {
                           });
                         }
                       },
-                      child: Text("开始扫描")
+                      child: Text("start_scanning".i18n())
                   ),
 
                   _isLoading==1
@@ -333,7 +369,7 @@ class _OcrState extends State<OcrPage> {
                     padding: EdgeInsets.fromLTRB(0, 20, 0, 20),
                     )
                   : Text(""),
-                  _isLoading==1?Text("加载中..."):Text("")
+                  _isLoading==1?Text("loading".i18n()):Text("")
                 ],
               ),
             )
@@ -341,3 +377,5 @@ class _OcrState extends State<OcrPage> {
     );
   }
 }
+
+//finished localization

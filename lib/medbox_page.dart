@@ -3,6 +3,7 @@ import 'dart:async';
 // import 'package:drift/drift.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:flutter/material.dart';
+import 'package:localization/localization.dart';
 
 import 'db/db_manager.dart';
 
@@ -134,7 +135,7 @@ class _MedboxPageState extends State<MedboxPage> {
                                       ),
 
                                       Text(
-                                          "每日${medicine.timesPerDay}次, 每次${medicine.dosePerTime}${medicine.unit}",
+                                          "every_day".i18n([medicine.timesPerDay.toString()])+", "+"every_time".i18n([medicine.dosePerTime.toString(),medicine.unit]),
                                           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)
                                       )
                                     ],
@@ -142,26 +143,6 @@ class _MedboxPageState extends State<MedboxPage> {
                                   Icon(Icons.keyboard_arrow_right,size: 30,)
                                 ],
                               )
-                              // child: Column(
-                              //   children: [
-                              //     Row(
-                              //       children: [
-                              //         Text(
-                              //             medicine.name,
-                              //             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30)
-                              //         )
-                              //       ],
-                              //     ),
-                              //     Row(
-                              //       children: [
-                              //         Text(
-                              //             "每日${medicine.timesPerDay}次, 每次${medicine.dosePerTime}${medicine.unit}",
-                              //             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)
-                              //         )
-                              //       ],
-                              //     )
-                              //   ],
-                              // ),
                             )
                           )
                         );

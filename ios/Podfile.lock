@@ -24,6 +24,18 @@ PODS:
   - GoogleMLKit/TextRecognition (4.0.0):
     - GoogleMLKit/MLKitCore
     - MLKitTextRecognition (~> 2.0.0)
+  - GoogleMLKit/TextRecognitionChinese (4.0.0):
+    - GoogleMLKit/MLKitCore
+    - MLKitTextRecognitionChinese (~> 1.0.0)
+  - GoogleMLKit/TextRecognitionDevanagari (4.0.0):
+    - GoogleMLKit/MLKitCore
+    - MLKitTextRecognitionDevanagari (~> 1.0.0)
+  - GoogleMLKit/TextRecognitionJapanese (4.0.0):
+    - GoogleMLKit/MLKitCore
+    - MLKitTextRecognitionJapanese (~> 1.0.0)
+  - GoogleMLKit/TextRecognitionKorean (4.0.0):
+    - GoogleMLKit/MLKitCore
+    - MLKitTextRecognitionKorean (~> 1.0.0)
   - GoogleToolboxForMac/DebugUtils (2.3.2):
     - GoogleToolboxForMac/Defines (= 2.3.2)
   - GoogleToolboxForMac/Defines (2.3.2)
@@ -60,8 +72,24 @@ PODS:
     - MLKitCommon (~> 9.0)
     - MLKitTextRecognitionCommon (= 1.0.0)
     - MLKitVision (~> 5.0)
+  - MLKitTextRecognitionChinese (1.0.0):
+    - MLKitCommon (~> 9.0)
+    - MLKitTextRecognitionCommon (= 1.0.0)
+    - MLKitVision (~> 5.0)
   - MLKitTextRecognitionCommon (1.0.0):
     - MLKitCommon (~> 9.0)
+    - MLKitVision (~> 5.0)
+  - MLKitTextRecognitionDevanagari (1.0.0):
+    - MLKitCommon (~> 9.0)
+    - MLKitTextRecognitionCommon (= 1.0.0)
+    - MLKitVision (~> 5.0)
+  - MLKitTextRecognitionJapanese (1.0.0):
+    - MLKitCommon (~> 9.0)
+    - MLKitTextRecognitionCommon (= 1.0.0)
+    - MLKitVision (~> 5.0)
+  - MLKitTextRecognitionKorean (1.0.0):
+    - MLKitCommon (~> 9.0)
+    - MLKitTextRecognitionCommon (= 1.0.0)
     - MLKitVision (~> 5.0)
   - MLKitVision (5.0.0):
     - GoogleToolboxForMac/Logger (~> 2.1)
@@ -102,6 +130,10 @@ DEPENDENCIES:
   - flutter_timezone (from `.symlinks/plugins/flutter_timezone/ios`)
   - google_mlkit_commons (from `.symlinks/plugins/google_mlkit_commons/ios`)
   - google_mlkit_text_recognition (from `.symlinks/plugins/google_mlkit_text_recognition/ios`)
+  - GoogleMLKit/TextRecognitionChinese (~> 4.0.0)
+  - GoogleMLKit/TextRecognitionDevanagari (~> 4.0.0)
+  - GoogleMLKit/TextRecognitionJapanese (~> 4.0.0)
+  - GoogleMLKit/TextRecognitionKorean (~> 4.0.0)
   - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - sqlite3_flutter_libs (from `.symlinks/plugins/sqlite3_flutter_libs/ios`)
@@ -117,7 +149,11 @@ SPEC REPOS:
     - MLImage
     - MLKitCommon
     - MLKitTextRecognition
+    - MLKitTextRecognitionChinese
     - MLKitTextRecognitionCommon
+    - MLKitTextRecognitionDevanagari
+    - MLKitTextRecognitionJapanese
+    - MLKitTextRecognitionKorean
     - MLKitVision
     - nanopb
     - PromisesObjC
@@ -163,7 +199,11 @@ SPEC CHECKSUMS:
   MLImage: 7bb7c4264164ade9bf64f679b40fb29c8f33ee9b
   MLKitCommon: c1b791c3e667091918d91bda4bba69a91011e390
   MLKitTextRecognition: 9ff0c843f2723d31d4bdd0c0d17a0a18382ed23e
+  MLKitTextRecognitionChinese: 1c2d90260b0ee2b5541bb6ce3b60fa5fed66a2a5
   MLKitTextRecognitionCommon: 0d48930fee25cce9d52d0ba217490d4797061aa2
+  MLKitTextRecognitionDevanagari: ed581ba85fccbbcf3e15629ec8be6d6abb02d2d1
+  MLKitTextRecognitionJapanese: bbcaa15796ca9a1f42e3191e57468beb51b1035e
+  MLKitTextRecognitionKorean: 8de40a4e5081242a7a83187583a3a7b57b5a703b
   MLKitVision: 8baa5f46ee3352614169b85250574fde38c36f49
   nanopb: d4d75c12cd1316f4a64e3c6963f879ecd4b5e0d5
   path_provider_foundation: 29f094ae23ebbca9d3d0cec13889cd9060c0e943
@@ -171,6 +211,6 @@ SPEC CHECKSUMS:
   sqlite3: 6e2d4a4879854d0ec86b476bf3c3e30870bac273
   sqlite3_flutter_libs: eb769059df0356dc52ddda040f09cacc9391a7cf
 
-PODFILE CHECKSUM: 1959d098c91d8a792531a723c4a9d7e9f6a01e38
+PODFILE CHECKSUM: 735ee5661cf177b52d98de7ae5f2670aec1696d4
 
 COCOAPODS: 1.13.0
