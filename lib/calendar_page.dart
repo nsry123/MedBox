@@ -38,7 +38,7 @@ class _CalendarPageState extends State<CalendarPage> {
 
   @override
   Widget build(BuildContext context) {
-    updateLogInfo();
+    // updateLogInfo();
     return Scaffold(
       body: Center(
         child: Column(
@@ -48,7 +48,7 @@ class _CalendarPageState extends State<CalendarPage> {
                 child: ListView.builder(
                   itemCount: _logList.length,
                   itemBuilder: (context, index){
-
+                    // updateLogInfo();
                     List<String> _dateInfo = _logList[index].date.split(";");
 
                     return Card(

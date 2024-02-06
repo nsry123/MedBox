@@ -380,6 +380,7 @@ class _MedicineEntryState extends State<MedicineEntry> {
                       )
                   )
               ),
+
             ],
           ),
 
@@ -485,6 +486,7 @@ class _MedicineEntryState extends State<MedicineEntry> {
       _buildNewTimeList(int.parse(jsonData['timesPerDay'].toString()));
     });
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

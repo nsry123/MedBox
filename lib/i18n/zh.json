@@ -1,7 +1,7 @@
 {
   "page_1_title": "今日待服",
   "page_1_tab_title": "待服",
-  "intake_at": "%s%s",
+  "intake_at": "%s服用%s",
   "expired": "已过期",
   "finished": "已完成",
   "intake_medicine": "服药：",
@@ -50,7 +50,7 @@
   "medicine_ocr": "药品图像识别",
   "chinese": "中文",
   "english": "英文",
-  "start_scannning": "开始扫描",
+  "start_scanning": "开始扫描",
   "image_not_uploaded": "未上传图片！",
   "please_select_image": "请选择图片",
   "camera": "相机",
@@ -66,7 +66,10 @@
   "medicine_notification": "服药提醒",
   "you_scheduled_intake": "您计划了%s的服药，请点击查看",
 
-  "modify_medicine": "编辑药物"
+  "modify_medicine": "编辑药物",
 
+  "whether_delete_medicine": "是否删除该药品？",
+  "yes": "是",
+  "no": "否"
 
 }

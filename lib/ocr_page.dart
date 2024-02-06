@@ -88,8 +88,6 @@ class _OcrState extends State<OcrPage> {
     super.initState();
     _imagePicker = ImagePicker();
     _recognizer = MyTextRecognizer(_script);
-    OpenAI.apiKey = "sk-OY6LgQtwdh4zK7yyB7689e39259849B8A1D23a5dF507555c";
-    OpenAI.baseUrl = "https://api.132999.xyz";
   }
 
   Widget deleteImageAlert(int index) {
@@ -295,22 +293,42 @@ class _OcrState extends State<OcrPage> {
                         }
                         print("scan completed");
                         print(_tempResult);
+                        OpenAIChatCompletionModel chatCompletion;
 
-                        OpenAIChatCompletionModel chatCompletion = await OpenAI.instance.chat.create(
-                            model: "gpt-4",
-                            messages: [
-                              OpenAIChatCompletionChoiceMessageModel(
-                                  role: OpenAIChatMessageRole.user,
-                                  content: [
-                                    OpenAIChatCompletionChoiceMessageContentItemModel.text("Hello! The following disordered text: "+_tempResult+" is the OCR result of the package of a medicine. Please summarize based on the OCR result the basic information of a medicine in the format of {\"name\":\${name}, \"timesPerDay\":\${timesPerDay}, \"numberOfMedicineEntityPerTime\":\${numberOfMedicineEntityPerTime}, \"typeOfMedicineEntity\":\${typeOfMedicineEntity}, \"taboos\":\${taboos}}, do not include any other words in your response. "
-                                      "The field \"typeOfMedicine\" refers to how the medicine "
-                                      "If you think the OCR result is not from the container of a medicine, please directly rely \"ERROR\" in your response and DO NOT INCLUDE ANY OTHER WORDS IN YOUR RESPONSE. Please follow these rules strictly."
-                                      "If there are multiple taboos, write them in one string instead of a json list."
-                                      "Please translate the information in each field to chinese, but do not alter the structure of the response."
-                                      "Please only give number in the field \"timesPerDay\" and \"numberOfMedicineEntityPerTime\"."
-                                      "For the field \"typeOfMedicineEntity\", please only use minimal description, for example, \"tablet\", \"pill\", etc. Do not add modifier word any before this description.")]
-                              )]
-                        );
+                        if(_script==TextRecognitionScript.chinese){
+                          chatCompletion = await OpenAI.instance.chat.create(
+                              model: "gpt-4",
+                              messages: [
+                                OpenAIChatCompletionChoiceMessageModel(
+                                    role: OpenAIChatMessageRole.user,
+                                    content: [
+                                      OpenAIChatCompletionChoiceMessageContentItemModel.text("你好! 以下文本："+_tempResult+" 是药品包装或说明书的OCR结果。 请根据OCR结果将药物的基本信息汇总为{\"name\":\${name}, \"timesPerDay\":\${timesPerDay}, \"numberOfMedicineEntityPerTime\":\${numberOfMedicineEntityPerTime}, \"typeOfMedicineEntity\":\${typeOfMedicineEntity}, \"taboos\":\${taboos}}的格式, 不要在你的回答中包含任何其他词语。"
+                                          +"刚刚提到的\"typeOfMedicineEntity\"指的是药品的形式，比如胶囊、片剂、喷雾等等"
+                                          +"如果您认为OCR结果并非来自药品包装或关于药品，请直接回复 \"ERROR\" 并且不要在你的回答中包含其他词语，这很重要。请严格遵守此规定。"
+                                          +"如果有多个禁忌，请将它们写在一个字符串中，而不是json列表中。"
+                                          +"在\"timesPerDay\"和\"numberOfMedicineEntityPerTime\"中，请以数字的方式回答。"
+                                          +"对于\"typeOfMedicineEntity\", 请仅使用最少的描述, 例如\"胶囊\", \"片\"等等。 请不要在这里增加任何的修饰词及其他内容。")]
+                                )]
+                          );
+                        }else{
+                          chatCompletion = await OpenAI.instance.chat.create(
+                              model: "gpt-4",
+                              messages: [
+                                OpenAIChatCompletionChoiceMessageModel(
+                                    role: OpenAIChatMessageRole.user,
+                                    content: [
+                                      OpenAIChatCompletionChoiceMessageContentItemModel.text("Hello! The following disordered text: "+_tempResult+" is the OCR result of the package of a medicine. Please summarize based on the OCR result the basic information of a medicine in the format of {\"name\":\${name}, \"timesPerDay\":\${timesPerDay}, \"numberOfMedicineEntityPerTime\":\${numberOfMedicineEntityPerTime}, \"typeOfMedicineEntity\":\${typeOfMedicineEntity}, \"taboos\":\${taboos}}, do not include any other words in your response. "
+                                          "The field \"typeOfMedicine\" refers to how the medicine "
+                                          +"If you think the OCR result is not from the container of a medicine, please directly rely \"ERROR\" in your response and DO NOT INCLUDE ANY OTHER WORDS IN YOUR RESPONSE. Please follow these rules strictly."
+                                          +"If there are multiple taboos, write them in one string instead of a json list."
+                                          +"Please translate the information in each field to chinese, but do not alter the structure of the response."
+                                          +"Please only give number in the field \"timesPerDay\" and \"numberOfMedicineEntityPerTime\"."
+                                          +"For the field \"typeOfMedicineEntity\", please only use minimal description, for example, \"tablet\", \"pill\", etc. Do not add modifier word any before this description.")]
+                                )]
+                          );
+                        }
+
+
                         String? response = chatCompletion.choices.first.message.content?[0].text;
                         print("gpt4 result generated!");
                         setState(() {
@@ -343,6 +361,7 @@ class _OcrState extends State<OcrPage> {
                           setState(()  {
                             // _result = response;
                             response = response?.replaceAll("\n", "");
+                            response = response?.replaceAll("`", "");
                             print(response?[response!.length-1]);
                             print(response?[response!.length-2]);
                             if(response?[response!.length-1]!="}" && response?[response!.length-2]!="\""){
@@ -364,7 +383,7 @@ class _OcrState extends State<OcrPage> {
                   _isLoading==1
                   ? Container(
                       child:SpinKitFoldingCube(
-                        color: Colors.blueAccent,
+                        color: Colors.blue,
                       ),
                     padding: EdgeInsets.fromLTRB(0, 20, 0, 20),
                     )

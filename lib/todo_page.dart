@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -116,28 +117,41 @@ class _TodoPageState extends State<TodoPage> {
       print("finish intake event received");
       updateMedInfo();
     });
-
   }
 
-
+  //vue, react native
   Future<void> zonedScheduleNotification(String title, String body, String payload, int seconds, int id, int hour, int minute) async {
+    final Int64List vibrationPattern = Int64List(4);
+    vibrationPattern[0] = 0;
+    vibrationPattern[1] = 1000;
+    vibrationPattern[2] = 5000;
+    vibrationPattern[3] = 2000;
+
     await flutterLocalNotificationsPlugin.zonedSchedule(
         id,
         title,
         body,
         _nextInstanceOfTime(hour, minute),
-        const NotificationDetails(
+        // tz.TZDateTime.now(tz.local).add(const Duration(seconds: 5)),
+        NotificationDetails(
             android: AndroidNotificationDetails(
-                'your channel id',
-                'your channel name',
-                channelDescription: 'your channel description',
-                importance: Importance.max,
-                priority: Priority.max)
+              'your channel id',
+              'your channel name',
+              vibrationPattern: vibrationPattern,
+              channelDescription: 'your channel description',
+              importance: Importance.max,
+              priority: Priority.max,
+              sound: const RawResourceAndroidNotificationSound('sound'),
+              playSound: true,
+              enableVibration: true,
+              fullScreenIntent: true
+            )
         ),
-        androidScheduleMode: AndroidScheduleMode.alarmClock,
-        uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.wallClockTime,
         matchDateTimeComponents: DateTimeComponents.time,
-        payload: payload
+        payload: payload,
+
     );
   }
 
@@ -225,15 +239,19 @@ class _TodoPageState extends State<TodoPage> {
                     String _content = "intake_at".i18n([_eachTime,_medList[_eachTime]!]);
                     String? _idString = _idList[_eachTime];
 
+                    print("each time:");
+                    print(_eachTime);
+
+
                     if (_whetherTakenDisplayed[_eachTime]==true){
                       _content+=", "+"finished".i18n();
                     }
                     else if (scheduledDate.isBefore(now)) {
                       // print("before");
                       _content+=", "+"expired".i18n();
-                      setNotification(_idString!, _eachTime,_eachTime+"medicine_notification".i18n(),"you_scheduled_intake".i18n([_eachTime]),index);
+                      setNotification(_idString!, _eachTime,_eachTime+"medicine_notification".i18n(),"you_scheduled_intake".i18n([_content]),index);
                     }else{
-                      setNotification(_idString!, _eachTime,_eachTime+"medicine_notification".i18n(),"you_scheduled_intake".i18n([_eachTime]),index);
+                      setNotification(_idString!, _eachTime,_eachTime+"medicine_notification".i18n(),"you_scheduled_intake".i18n([_content]),index);
                     }
                     // String time = _timesList[index];
                     return Card(

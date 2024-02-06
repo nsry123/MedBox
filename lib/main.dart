@@ -17,6 +17,7 @@ import 'package:test1/medicine_intake_page.dart';
 import 'package:test1/todo_page.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
+import 'package:workmanager/workmanager.dart';
 
 import 'db/db_manager.dart';
 import 'medbox_page.dart';
@@ -35,8 +36,124 @@ Future<void> _configureLocalTimeZone() async {
 
 
 
+void callbackDispatcher() {
+  Workmanager().executeTask((task, inputData) async {
+    await _configureLocalTimeZone();
+
+    final NotificationAppLaunchDetails? notificationAppLaunchDetails = !kIsWeb && Platform.isLinux
+        ? null
+        : await flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();
+    String initialRoute = HomePage.routeName;
+    if (notificationAppLaunchDetails?.didNotificationLaunchApp ?? false) {
+      selectedNotificationPayload = notificationAppLaunchDetails!.notificationResponse?.payload;
+      initialRoute = MedicineIntakePage.routeName;
+    }
+
+    const AndroidInitializationSettings initializationSettingsAndroid =
+    AndroidInitializationSettings("@mipmap/ic_launcher");
+
+
+    final List<DarwinNotificationCategory> darwinNotificationCategories =
+    <DarwinNotificationCategory>[
+      DarwinNotificationCategory(
+        darwinNotificationCategoryText,
+        actions: <DarwinNotificationAction>[
+          DarwinNotificationAction.text(
+            'text_1',
+            'Action 1',
+            buttonTitle: 'Send',
+            placeholder: 'Placeholder',
+          ),
+        ],
+      ),
+      DarwinNotificationCategory(
+        darwinNotificationCategoryPlain,
+        actions: <DarwinNotificationAction>[
+          DarwinNotificationAction.plain('id_1', 'Action 1'),
+          DarwinNotificationAction.plain(
+            'id_2',
+            'Action 2 (destructive)',
+            options: <DarwinNotificationActionOption>{
+              DarwinNotificationActionOption.destructive,
+            },
+          ),
+          DarwinNotificationAction.plain(
+            navigationActionId,
+            'Action 3 (foreground)',
+            options: <DarwinNotificationActionOption>{
+              DarwinNotificationActionOption.foreground,
+            },
+          ),
+          DarwinNotificationAction.plain(
+            'id_4',
+            'Action 4 (auth required)',
+            options: <DarwinNotificationActionOption>{
+              DarwinNotificationActionOption.authenticationRequired,
+            },
+          ),
+        ],
+        options: <DarwinNotificationCategoryOption>{
+          DarwinNotificationCategoryOption.hiddenPreviewShowTitle,
+        },
+      )
+    ];
+
+    /// Note: permissions aren't requested here just to demonstrate that can be
+    /// done later
+    final DarwinInitializationSettings initializationSettingsDarwin = DarwinInitializationSettings(
+      requestAlertPermission: true,
+      requestBadgePermission: true,
+      requestSoundPermission: true,
+      onDidReceiveLocalNotification: (int id, String? title, String? body, String? payload) async {
+        didReceiveLocalNotificationStream.add(
+          ReceivedNotification(
+            id: id,
+            title: title,
+            body: body,
+            payload: payload,
+          ),
+        );
+      },
+      notificationCategories: darwinNotificationCategories,
+    );
+    final LinuxInitializationSettings initializationSettingsLinux = LinuxInitializationSettings(
+      defaultActionName: 'Open notification',
+      defaultIcon: AssetsLinuxIcon("@mipmap/ic_launcher"),
+    );
+    final InitializationSettings initializationSettings = InitializationSettings(
+      android: initializationSettingsAndroid,
+      iOS: initializationSettingsDarwin,
+      macOS: initializationSettingsDarwin,
+      linux: initializationSettingsLinux,
+    );
+    await flutterLocalNotificationsPlugin.initialize(
+      initializationSettings,
+      onDidReceiveNotificationResponse: (NotificationResponse notificationResponse) {
+        switch (notificationResponse.notificationResponseType) {
+          case NotificationResponseType.selectedNotification:
+            selectNotificationStream.add(notificationResponse.payload);
+            break;
+          case NotificationResponseType.selectedNotificationAction:
+            if (notificationResponse.actionId == navigationActionId) {
+              selectNotificationStream.add(notificationResponse.payload);
+            }
+            break;
+        }
+      },
+      onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
+    );
+    return Future.value(true);
+  });
+}
+
+
 Future<void> main() async{
   WidgetsFlutterBinding.ensureInitialized();
+  Workmanager().initialize(
+    callbackDispatcher,
+    isInDebugMode: true,
+  );
+
   await _configureLocalTimeZone();
 
   final NotificationAppLaunchDetails? notificationAppLaunchDetails = !kIsWeb && Platform.isLinux
@@ -100,9 +217,9 @@ Future<void> main() async{
   /// Note: permissions aren't requested here just to demonstrate that can be
   /// done later
   final DarwinInitializationSettings initializationSettingsDarwin = DarwinInitializationSettings(
-    requestAlertPermission: false,
-    requestBadgePermission: false,
-    requestSoundPermission: false,
+    requestAlertPermission: true,
+    requestBadgePermission: true,
+    requestSoundPermission: true,
     onDidReceiveLocalNotification: (int id, String? title, String? body, String? payload) async {
       didReceiveLocalNotificationStream.add(
         ReceivedNotification(
@@ -346,6 +463,7 @@ class MyApp extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
         // MaterialLocalizationZh.delegate,
+        // Ma
         LocalJsonLocalization.delegate,
 
       ],
@@ -445,7 +563,9 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     List<Widget> getPages(){
-      return [TodoPage(database: database,anotificationHelper: notificationHelper,), CalendarPage(database: database,), MedboxPage(database: database)];
+      return [TodoPage(database: database,anotificationHelper: notificationHelper,),
+        CalendarPage(database: database,),
+        MedboxPage(database: database)];
     }
     return NotificationListener<CustomNotification>(
       onNotification: (notification){
@@ -468,6 +588,7 @@ class _MyHomePageState extends State<MyHomePage> {
             actions: [
               // IconButton(onPressed: (){print('welcome-text'.i18n());}, icon: Icon(Icons.add))
             ],
+
         ),
         body: getPages()[_bnvPos],
         bottomNavigationBar: BottomNavigationBar(

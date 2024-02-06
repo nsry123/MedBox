@@ -31,3 +31,5 @@ subprojects {
 tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }
+//android.buildTypes.release.ndk.debugSymbolLevel = { FULL }
+
