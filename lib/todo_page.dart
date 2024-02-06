@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -116,28 +117,41 @@ class _TodoPageState extends State<TodoPage> {
       print("finish intake event received");
       updateMedInfo();
     });
-
   }
 
-
+  //vue, react native
   Future<void> zonedScheduleNotification(String title, String body, String payload, int seconds, int id, int hour, int minute) async {
+    final Int64List vibrationPattern = Int64List(4);
+    vibrationPattern[0] = 0;
+    vibrationPattern[1] = 1000;
+    vibrationPattern[2] = 5000;
+    vibrationPattern[3] = 2000;
+
     await flutterLocalNotificationsPlugin.zonedSchedule(
         id,
         title,
         body,
         _nextInstanceOfTime(hour, minute),
-        const NotificationDetails(
+        // tz.TZDateTime.now(tz.local).add(const Duration(seconds: 5)),
+        NotificationDetails(
             android: AndroidNotificationDetails(
-                'your channel id',
-                'your channel name',
-                channelDescription: 'your channel description',
-                importance: Importance.max,
-                priority: Priority.max)
+              'your channel id',
+              'your channel name',
+              vibrationPattern: vibrationPattern,
+              channelDescription: 'your channel description',
+              importance: Importance.max,
+              priority: Priority.max,
+              sound: const RawResourceAndroidNotificationSound('sound'),
+              playSound: true,
+              enableVibration: true,
+              fullScreenIntent: true
+            )
         ),
-        androidScheduleMode: AndroidScheduleMode.alarmClock,
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
         matchDateTimeComponents: DateTimeComponents.time,
-        payload: payload
+        payload: payload,
+
     );
   }
 

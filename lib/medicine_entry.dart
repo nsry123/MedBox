@@ -380,6 +380,7 @@ class _MedicineEntryState extends State<MedicineEntry> {
                       )
                   )
               ),
+
             ],
           ),
 

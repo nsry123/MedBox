@@ -100,9 +100,9 @@ Future<void> main() async{
   /// Note: permissions aren't requested here just to demonstrate that can be
   /// done later
   final DarwinInitializationSettings initializationSettingsDarwin = DarwinInitializationSettings(
-    requestAlertPermission: false,
-    requestBadgePermission: false,
-    requestSoundPermission: false,
+    requestAlertPermission: true,
+    requestBadgePermission: true,
+    requestSoundPermission: true,
     onDidReceiveLocalNotification: (int id, String? title, String? body, String? payload) async {
       didReceiveLocalNotificationStream.add(
         ReceivedNotification(
@@ -346,6 +346,7 @@ class MyApp extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
         // MaterialLocalizationZh.delegate,
+        // Ma
         LocalJsonLocalization.delegate,
 
       ],
@@ -445,7 +446,9 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     List<Widget> getPages(){
-      return [TodoPage(database: database,anotificationHelper: notificationHelper,), CalendarPage(database: database,), MedboxPage(database: database)];
+      return [TodoPage(database: database,anotificationHelper: notificationHelper,),
+        CalendarPage(database: database,),
+        MedboxPage(database: database)];
     }
     return NotificationListener<CustomNotification>(
       onNotification: (notification){
@@ -468,6 +471,7 @@ class _MyHomePageState extends State<MyHomePage> {
             actions: [
               // IconButton(onPressed: (){print('welcome-text'.i18n());}, icon: Icon(Icons.add))
             ],
+
         ),
         body: getPages()[_bnvPos],
         bottomNavigationBar: BottomNavigationBar(

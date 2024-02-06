@@ -135,7 +135,7 @@ class _MedicineChangeState extends State<MedicineChange> {
         taboos: _medTabooController.text,
         timesList: times,
         mode: choices.indexOf(_chosen),
-        whetherTakenList: medicine.whetherTakenList,
+        whetherTakenList: List.generate(medicine.whetherTakenList.length, (_)=>-1),
     );
     await widget.database.update(widget.database.medicines).replace(newMedicine);
   }

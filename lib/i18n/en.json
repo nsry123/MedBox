@@ -34,8 +34,8 @@
 
   "select_time_help": "Please select time(24H)",
   "time_input_illegal": "Time selected is illegal",
-  "hour_label": "H",
-  "minute_label": "M",
+  "hour_label": "Hour",
+  "minute_label": "Minute",
 
   "add_medicine": "Add Medicine",
   "what_medicine_do_you_want_to_add": "Basic Information",
@@ -67,5 +67,9 @@
   "medicine_notification": "'s notification",
   "you_scheduled_intake": "You scheduled medicine intake at %s, click to view.",
 
-  "modify_medicine": "Edit Medicine"
+  "modify_medicine": "Edit Medicine",
+
+  "whether_delete_medicine": "Delete this medicine?",
+  "yes": "Yes",
+  "no": "No"
 }

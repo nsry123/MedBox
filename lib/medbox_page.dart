@@ -64,7 +64,9 @@ class _MedboxPageState extends State<MedboxPage> {
 
   Widget deleteMedicineAlert(int index) {
     return AlertDialog(
-      title: const Text("是否删除该药品？"),
+
+
+      title: Text("whether_delete_medicine".i18n()),
       content: Row(
         children: [
           TextButton(
@@ -75,12 +77,12 @@ class _MedboxPageState extends State<MedboxPage> {
                 });
                 Navigator.of(context).pop();
               },
-              child: Text("确定")),
+              child: Text("yes".i18n())),
           TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text("取消"))
+              child: Text("no".i18n()))
         ],
       ),
     );
@@ -104,7 +106,7 @@ class _MedboxPageState extends State<MedboxPage> {
               children: <Widget>[
                 Expanded(
                   child: Container(
-                    margin: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                    margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                     child: ListView.builder(
                       itemCount: _medInfo.length,
                       itemBuilder: (context,index){
@@ -122,7 +124,7 @@ class _MedboxPageState extends State<MedboxPage> {
                               showDialog(context: context, builder: (context) => deleteMedicineAlert(index));
                             },
                             child: Container(
-                              margin: EdgeInsets.fromLTRB(10, 10, 0, 10),
+                              margin: EdgeInsets.fromLTRB(20, 20, 0, 20),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
@@ -133,7 +135,6 @@ class _MedboxPageState extends State<MedboxPage> {
                                           medicine.name,
                                           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30)
                                       ),
-
                                       Text(
                                           "every_day".i18n([medicine.timesPerDay.toString()])+", "+"every_time".i18n([medicine.dosePerTime.toString(),medicine.unit]),
                                           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)
