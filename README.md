@@ -5,7 +5,7 @@ This project aims to provide a highly manageable medicine intake regulator for t
 ## Quick Start
 1. Clone this repositor
 ```bash
-git clone https://github.com/nsry123/Medbox-Application/
+git clone https://github.com/nsry123/MedBox/
 ```
 2.  Build and run using flutter (latest stable channel required)
 
