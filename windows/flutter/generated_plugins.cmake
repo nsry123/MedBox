@@ -5,6 +5,7 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   file_selector_windows
   flutter_localization
+  flutter_timezone
   sqlite3_flutter_libs
 )
 

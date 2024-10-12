@@ -6,8 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:group_radio_button/group_radio_button.dart';
 import 'package:localization/localization.dart';
-import 'package:test1/db/db_manager.dart';
-import 'package:test1/ocr_page.dart';
+import 'package:medbox/db/db_manager.dart';
+import 'package:medbox/ocr_page.dart';
 
 import 'medbox_page.dart';
 
@@ -486,6 +486,7 @@ class _MedicineEntryState extends State<MedicineEntry> {
       _buildNewTimeList(int.parse(jsonData['timesPerDay'].toString()));
     });
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

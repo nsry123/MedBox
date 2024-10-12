@@ -76,7 +76,6 @@ class _OcrState extends State<OcrPage> {
   late ImagePicker _imagePicker;
   late MyTextRecognizer _recognizer;
   int _isLoading = 0;
-
   List<String> _imagePaths = [];
   String _result = "";
   late StreamSubscription subscription;
@@ -88,8 +87,8 @@ class _OcrState extends State<OcrPage> {
     super.initState();
     _imagePicker = ImagePicker();
     _recognizer = MyTextRecognizer(_script);
-    OpenAI.apiKey = "sk-RN5z8KUi178AhTgb5cE0Db66701649AfBb7d6b5c11114738";
-    OpenAI.baseUrl = "https://oneapi.xty.app";
+    OpenAI.apiKey = "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";
+    // OpenAI.baseUrl = "https://oneapi.xty.app";
   }
 
   Widget deleteImageAlert(int index) {

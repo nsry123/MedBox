@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "test1" "\0"
+            VALUE "CompanyName", "com.nsry123" "\0"
+            VALUE "FileDescription", "medbox" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "test1" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2023 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "test1.exe" "\0"
-            VALUE "ProductName", "test1" "\0"
+            VALUE "InternalName", "medbox" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2024 com.nsry123. All rights reserved." "\0"
+            VALUE "OriginalFilename", "medbox.exe" "\0"
+            VALUE "ProductName", "medbox" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

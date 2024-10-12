@@ -7,16 +7,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter_native_timezone/flutter_native_timezone.dart';
+// import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:localization/localization.dart';
-import 'package:test1/calendar_page.dart';
-import 'package:test1/medicine_change.dart';
-import 'package:test1/medicine_entry.dart';
-import 'package:test1/medicine_intake_page.dart';
-import 'package:test1/todo_page.dart';
+import 'package:medbox/calendar_page.dart';
+import 'package:medbox/medicine_change.dart';
+import 'package:medbox/medicine_entry.dart';
+import 'package:medbox/medicine_intake_page.dart';
+import 'package:medbox/qrscanner_page.dart';
+import 'package:medbox/todo_page.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
+import 'package:workmanager/workmanager.dart';
 
 import 'db/db_manager.dart';
 import 'medbox_page.dart';
@@ -35,8 +37,124 @@ Future<void> _configureLocalTimeZone() async {
 
 
 
+void callbackDispatcher() {
+  Workmanager().executeTask((task, inputData) async {
+    await _configureLocalTimeZone();
+
+    final NotificationAppLaunchDetails? notificationAppLaunchDetails = !kIsWeb && Platform.isLinux
+        ? null
+        : await flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();
+    String initialRoute = HomePage.routeName;
+    if (notificationAppLaunchDetails?.didNotificationLaunchApp ?? false) {
+      selectedNotificationPayload = notificationAppLaunchDetails!.notificationResponse?.payload;
+      initialRoute = MedicineIntakePage.routeName;
+    }
+
+    const AndroidInitializationSettings initializationSettingsAndroid =
+    AndroidInitializationSettings("@mipmap/ic_launcher");
+
+
+    final List<DarwinNotificationCategory> darwinNotificationCategories =
+    <DarwinNotificationCategory>[
+      DarwinNotificationCategory(
+        darwinNotificationCategoryText,
+        actions: <DarwinNotificationAction>[
+          DarwinNotificationAction.text(
+            'text_1',
+            'Action 1',
+            buttonTitle: 'Send',
+            placeholder: 'Placeholder',
+          ),
+        ],
+      ),
+      DarwinNotificationCategory(
+        darwinNotificationCategoryPlain,
+        actions: <DarwinNotificationAction>[
+          DarwinNotificationAction.plain('id_1', 'Action 1'),
+          DarwinNotificationAction.plain(
+            'id_2',
+            'Action 2 (destructive)',
+            options: <DarwinNotificationActionOption>{
+              DarwinNotificationActionOption.destructive,
+            },
+          ),
+          DarwinNotificationAction.plain(
+            navigationActionId,
+            'Action 3 (foreground)',
+            options: <DarwinNotificationActionOption>{
+              DarwinNotificationActionOption.foreground,
+            },
+          ),
+          DarwinNotificationAction.plain(
+            'id_4',
+            'Action 4 (auth required)',
+            options: <DarwinNotificationActionOption>{
+              DarwinNotificationActionOption.authenticationRequired,
+            },
+          ),
+        ],
+        options: <DarwinNotificationCategoryOption>{
+          DarwinNotificationCategoryOption.hiddenPreviewShowTitle,
+        },
+      )
+    ];
+
+    /// Note: permissions aren't requested here just to demonstrate that can be
+    /// done later
+    final DarwinInitializationSettings initializationSettingsDarwin = DarwinInitializationSettings(
+      requestAlertPermission: true,
+      requestBadgePermission: true,
+      requestSoundPermission: true,
+      onDidReceiveLocalNotification: (int id, String? title, String? body, String? payload) async {
+        didReceiveLocalNotificationStream.add(
+          ReceivedNotification(
+            id: id,
+            title: title,
+            body: body,
+            payload: payload,
+          ),
+        );
+      },
+      notificationCategories: darwinNotificationCategories,
+    );
+    final LinuxInitializationSettings initializationSettingsLinux = LinuxInitializationSettings(
+      defaultActionName: 'Open notification',
+      defaultIcon: AssetsLinuxIcon("@mipmap/ic_launcher"),
+    );
+    final InitializationSettings initializationSettings = InitializationSettings(
+      android: initializationSettingsAndroid,
+      iOS: initializationSettingsDarwin,
+      macOS: initializationSettingsDarwin,
+      linux: initializationSettingsLinux,
+    );
+    await flutterLocalNotificationsPlugin.initialize(
+      initializationSettings,
+      onDidReceiveNotificationResponse: (NotificationResponse notificationResponse) {
+        switch (notificationResponse.notificationResponseType) {
+          case NotificationResponseType.selectedNotification:
+            selectNotificationStream.add(notificationResponse.payload);
+            break;
+          case NotificationResponseType.selectedNotificationAction:
+            if (notificationResponse.actionId == navigationActionId) {
+              selectNotificationStream.add(notificationResponse.payload);
+            }
+            break;
+        }
+      },
+      onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
+    );
+    return Future.value(true);
+  });
+}
+
+
 Future<void> main() async{
   WidgetsFlutterBinding.ensureInitialized();
+  Workmanager().initialize(
+    callbackDispatcher,
+    isInDebugMode: true,
+  );
+
   await _configureLocalTimeZone();
 
   final NotificationAppLaunchDetails? notificationAppLaunchDetails = !kIsWeb && Platform.isLinux
@@ -204,11 +322,11 @@ class NotificationHelper {
     return scheduleDate;
   }
 
-  Future<void> _configureLocalTimeZone() async {
-    tz.initializeTimeZones();
-    final String timeZone = await FlutterNativeTimezone.getLocalTimezone();
-    tz.setLocalLocation(tz.getLocation(timeZone));
-  }
+  // Future<void> _configureLocalTimeZone() async {
+  //   tz.initializeTimeZones();
+  //   final String timeZone = await FlutterNativeTimezone.getLocalTimezone();
+  //   tz.setLocalLocation(tz.getLocation(timeZone));
+  // }
   Future<void> getActiveNotifications() async{
     flutterLocalNotificationsPlugin.getActiveNotifications().then((value) {
       // print(value[0].title);
@@ -466,10 +584,13 @@ class _MyHomePageState extends State<MyHomePage> {
       child: Scaffold(
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
-            backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-            title: Text(titles[_bnvPos]),
-            actions: [
-              // IconButton(onPressed: (){print('welcome-text'.i18n());}, icon: Icon(Icons.add))
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          title: Text(titles[_bnvPos]),
+          actions: [
+            IconButton(onPressed: (){
+              Navigator.push(context, MaterialPageRoute(builder: (context)=>QrScanner(database: database)));
+              },
+                icon: Icon(Icons.qr_code_scanner))
             ],
 
         ),

@@ -5,9 +5,9 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:localization/localization.dart';
-import 'package:test1/main.dart';
-import 'package:test1/medbox_page.dart';
-import 'package:test1/medicine_intake_page.dart';
+import 'package:medbox/main.dart';
+import 'package:medbox/medbox_page.dart';
+import 'package:medbox/medicine_intake_page.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/timezone.dart';
 
@@ -148,7 +148,7 @@ class _TodoPageState extends State<TodoPage> {
             )
         ),
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+        uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.wallClockTime,
         matchDateTimeComponents: DateTimeComponents.time,
         payload: payload,
 
@@ -239,15 +239,19 @@ class _TodoPageState extends State<TodoPage> {
                     String _content = "intake_at".i18n([_eachTime,_medList[_eachTime]!]);
                     String? _idString = _idList[_eachTime];
 
+                    print("each time:");
+                    print(_eachTime);
+
+
                     if (_whetherTakenDisplayed[_eachTime]==true){
                       _content+=", "+"finished".i18n();
                     }
                     else if (scheduledDate.isBefore(now)) {
                       // print("before");
                       _content+=", "+"expired".i18n();
-                      setNotification(_idString!, _eachTime,_eachTime+"medicine_notification".i18n(),"you_scheduled_intake".i18n([_eachTime]),index);
+                      setNotification(_idString!, _eachTime,_eachTime+"medicine_notification".i18n(),"you_scheduled_intake".i18n([_content]),index);
                     }else{
-                      setNotification(_idString!, _eachTime,_eachTime+"medicine_notification".i18n(),"you_scheduled_intake".i18n([_eachTime]),index);
+                      setNotification(_idString!, _eachTime,_eachTime+"medicine_notification".i18n(),"you_scheduled_intake".i18n([_content]),index);
                     }
                     // String time = _timesList[index];
                     return Card(

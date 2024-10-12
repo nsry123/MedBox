@@ -1,14 +1,16 @@
-## Medbox Application
+# medbox
 
-This project aims to provide a highly manageable medicine intake regulator for those in need. Users can register their required medicine easily and get daily notifications at desired times. During medicine registration, users can use multiple images of the medicine container as input. Through using OCR to extract disordered texts and GPT to summarize the key properties in given order, the application provides assitance to those with difficulties mannually registering the medicine. 
+A new Flutter project.
 
-## Quick Start
-1. Clone this repositor
-```bash
-git clone https://github.com/nsry123/Medbox-Application/
-```
-2.  Build and run using flutter (latest stable channel required)
+## Getting Started
 
-```bash
-flutter run --profile
-```
+This project is a starting point for a Flutter application.
+
+A few resources to get you started if this is your first Flutter project:
+
+- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
+- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+
+For help getting started with Flutter development, view the
+[online documentation](https://docs.flutter.dev/), which offers tutorials,
+samples, guidance on mobile development, and a full API reference.

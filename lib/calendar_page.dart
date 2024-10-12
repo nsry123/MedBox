@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:localization/localization.dart';
-import 'package:test1/daily_detail_page.dart';
+import 'package:medbox/daily_detail_page.dart';
 
 import 'db/db_manager.dart';
 

@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:localization/localization.dart';
-import 'package:test1/medbox_page.dart';
+import 'package:medbox/medbox_page.dart';
 import 'package:timezone/timezone.dart' as tz;
 
 import 'db/db_manager.dart';

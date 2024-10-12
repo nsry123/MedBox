@@ -64,8 +64,6 @@ class _MedboxPageState extends State<MedboxPage> {
 
   Widget deleteMedicineAlert(int index) {
     return AlertDialog(
-
-
       title: Text("whether_delete_medicine".i18n()),
       content: Row(
         children: [
