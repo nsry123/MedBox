@@ -87,8 +87,6 @@ class _OcrState extends State<OcrPage> {
     super.initState();
     _imagePicker = ImagePicker();
     _recognizer = MyTextRecognizer(_script);
-    OpenAI.apiKey = "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";
-    // OpenAI.baseUrl = "https://oneapi.xty.app";
   }
 
   Widget deleteImageAlert(int index) {
