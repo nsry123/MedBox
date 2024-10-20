@@ -87,8 +87,6 @@ class _OcrState extends State<OcrPage> {
     super.initState();
     _imagePicker = ImagePicker();
     _recognizer = MyTextRecognizer(_script);
-    OpenAI.baseUrl = "https://api.agicto.cn";
-    OpenAI.apiKey = "sk-RQrCdvkQ1dCvvlAKdVA71va66iWXJyYDzndydc2FCODY3Fi4";
   }
 
   Widget deleteImageAlert(int index) {
