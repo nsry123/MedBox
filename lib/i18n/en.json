@@ -68,7 +68,7 @@
   "you_scheduled_intake": "You scheduled medicine intake at %s, click to view.",
 
   "modify_medicine": "Edit Medicine",
-  "qr_scanner_title": "Sync with Notifier",
+  "qr_scanner_title": "Sync with MedMinder",
 
   "whether_delete_medicine": "Delete this medicine?",
   "yes": "Yes",
@@ -77,5 +77,6 @@
   "sync_successful": "Sync Success",
   "sync_failed": "Sync failed after %s tries",
   "resync": "Attempting to resync...",
-  "syncing": "Synchronising..."
+  "syncing": "Synchronising...",
+  "wifi_incorrect":"Please Connect to WIFI \"MedMinder\" to sync with your MedMinder"
 }

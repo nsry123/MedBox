@@ -590,7 +590,7 @@ class _MyHomePageState extends State<MyHomePage> {
             IconButton(onPressed: (){
               Navigator.push(context, MaterialPageRoute(builder: (context)=>QrScanner(database: database)));
               },
-                icon: Icon(Icons.qr_code_scanner))
+                icon: Icon(Icons.sync))
             ],
 
         ),

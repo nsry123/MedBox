@@ -167,18 +167,26 @@ class _QrscannerPageState extends State<QrScanner> with WidgetsBindingObserver{
     // unawaited(controller.start());
 
     WiFiForIoTPlugin.isEnabled().then((val) {
-      _isEnabled = val;
-    });
-
-    WiFiForIoTPlugin.isConnected().then((val) {
       setState(() {
-        _isConnected = val;
-        if(_isConnected){
+        _isEnabled = val;
+      });
+
+    });
+    setState(() {
+      _isConnected = true;
+      setState(() {
+        _isSyncSuccessful = _syncWithRetry(_remainingRetry);
+      });
+    });
+    WiFiForIoTPlugin.getSSID().then((val) {
+      // if(val=="MedMinder"){
+        setState(() {
+          _isConnected = true;
           setState(() {
             _isSyncSuccessful = _syncWithRetry(_remainingRetry);
           });
-        }
-      });
+        });
+      // }
     });
     WiFiForIoTPlugin.isWiFiAPEnabled().then((val) {
       _isWiFiAPEnabled = val;
@@ -231,24 +239,53 @@ class _QrscannerPageState extends State<QrScanner> with WidgetsBindingObserver{
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(widget.title.i18n()),backgroundColor: Theme.of(context).colorScheme.inversePrimary,),
-      // backgroundColor: Colors.black,
+      // backgroundColor: Colors.black,f
       body:
-      // _isConnected ? FutureBuilder(
-      //     future: _isSyncSuccessful,
-      //     builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-      //       if (!snapshot.hasData) {
-      //         // while data is loading:
-      //         return Text("syncing".i18n());
-      //       } else {
-      //         // data loaded:
-      //         if(snapshot.data! == true){
-      //           return Text("sync_success".i18n());
-      //         }else{
-      //           return Text("sync_failed".i18n(["5"]));
-      //         }
-      //       }
-      //     },):
-          Text("Please Connect to WIFI to sync with your MedMinder")
+          Column(
+            children: [
+              Row(
+                children: [
+                  _isConnected ? FutureBuilder(
+                    future: _isSyncSuccessful,
+                    builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+                      if (!snapshot.hasData) {
+                        // while data is loading:
+                        return Text("syncing".i18n(), style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ));
+                      } else {
+                        // data loaded:
+                        if(snapshot.data!){
+                          return Text("sync_success".i18n(), style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ));
+                        }else{
+                          return Text("sync_failed".i18n(["5"]), style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ));
+                        }
+                      }
+                    },):
+
+                  Flexible(
+                      child: Container(
+                          padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                          child: Text(
+                            "wifi_incorrect".i18n(),
+                            overflow: TextOverflow.clip,softWrap: true,
+                            style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold,
+                            )
+                        )
+                      )
+                  )
+                ],
+              )
+            ],
+          )
+
       // ):Stack(
       //   children: [
       //     MobileScanner(

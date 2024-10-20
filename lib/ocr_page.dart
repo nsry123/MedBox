@@ -87,6 +87,8 @@ class _OcrState extends State<OcrPage> {
     super.initState();
     _imagePicker = ImagePicker();
     _recognizer = MyTextRecognizer(_script);
+    OpenAI.baseUrl = "https://api.agicto.cn";
+    OpenAI.apiKey = "sk-RQrCdvkQ1dCvvlAKdVA71va66iWXJyYDzndydc2FCODY3Fi4";
   }
 
   Widget deleteImageAlert(int index) {
@@ -296,7 +298,7 @@ class _OcrState extends State<OcrPage> {
 
                         if(_script==TextRecognitionScript.chinese){
                           chatCompletion = await OpenAI.instance.chat.create(
-                              model: "gpt-4",
+                              model: "gpt-4o",
                               messages: [
                                 OpenAIChatCompletionChoiceMessageModel(
                                     role: OpenAIChatMessageRole.user,

@@ -72,9 +72,10 @@
   "whether_delete_medicine": "是否删除该药品？",
   "yes": "是",
   "no": "否",
+
   "sync_successful": "同步成功",
   "sync_failed": "在%s次尝试后仍然失败",
   "resync": "尝试重新同步...",
-  "syncing": "正在同步..."
-
+  "syncing": "正在同步...",
+  "wifi_incorrect":"请连接到WIFI\"MedMinder\"来和提醒器同步"
 }

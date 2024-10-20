@@ -1,3 +1,11 @@
+subprojects {
+    afterEvaluate {
+        if (it.name == "flutter_inappwebview_android") {
+            it.android.buildTypes.release.minifyEnabled = false
+        }
+    }
+}
+
 allprojects {
     repositories {
         google()
